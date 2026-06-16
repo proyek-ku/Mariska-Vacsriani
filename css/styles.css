@@ -1,0 +1,1282 @@
+/* =============================================================
+   PROFIL DOSEN — Stylesheet Bersama
+   Skema: Navy + Teal + Emas | Font: Plus Jakarta Sans + Inter
+   Modern, mobile-first, Bahasa Indonesia
+   ============================================================= */
+
+/* === RESET & DASAR === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* === VARIABEL DESAIN (TOKEN) === */
+:root {
+  /* Warna utama — Navy + Teal + Emas */
+  --warna-utama:      #1E3A5F;
+  --warna-aksen:      #0F766E;
+  --warna-aksen-2:    #1E3A5F;
+  --warna-emas:       #C9A227;
+  --warna-aksen-muda: #EAF1EE;
+  --warna-teks:       #1A2433;
+  --warna-teks-muda:  #5A6B7B;
+  --warna-latar:      #FBFAF6;
+  --warna-kartu:      #FFFFFF;
+  --warna-garis:      #E5E2D8;
+
+  /* Warna status */
+  --warna-bahaya:     #C0392B;
+  --warna-sukses:     #15803D;
+  --warna-peringatan: #B45309;
+
+  /* Gradien */
+  --gradien-utama: linear-gradient(135deg, #1E3A5F, #0F766E);
+
+  /* Radius */
+  --radius:       14px;
+  --radius-besar: 22px;
+  --radius-penuh: 999px;
+
+  /* Bayangan berlapis ber-tint navy */
+  --bayangan-sm: 0 1px 3px rgba(30,58,95,.08);
+  --bayangan:    0 6px 20px rgba(30,58,95,.10);
+  --bayangan-lg: 0 16px 40px rgba(30,58,95,.16);
+
+  /* Kompatibilitas nama lama — dipakai komponen tertentu */
+  --bayangan-kuat: var(--bayangan-lg);
+
+  /* Transisi */
+  --transisi: .25s cubic-bezier(.4,0,.2,1);
+
+  /* Font */
+  --font-judul: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-utama: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* === DASAR HALAMAN === */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-utama);
+  background-color: var(--warna-latar);
+  color: var(--warna-teks);
+  line-height: 1.65;
+  font-size: 16px;
+}
+
+a {
+  color: var(--warna-aksen);
+  text-decoration: none;
+  transition: color var(--transisi);
+}
+
+a:hover {
+  color: var(--warna-utama);
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* === TIPOGRAFI === */
+h1, h2, h3, h4 {
+  font-family: var(--font-judul);
+  line-height: 1.2;
+}
+
+h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; }
+h2 { font-size: clamp(1.2rem, 3vw, 1.8rem); font-weight: 700; }
+h3 { font-size: clamp(1rem, 2.5vw, 1.3rem);  font-weight: 700; }
+h4 { font-size: 1rem; font-weight: 600; }
+
+/* === LAYOUT UMUM === */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.seksi {
+  padding: 3.5rem 0;
+  /* Animasi masuk halus — fade-up */
+  animation: fadeUp .5s var(--transisi) both;
+}
+
+.seksi + .seksi {
+  border-top: 1px solid var(--warna-garis);
+}
+
+/* === JUDUL SEKSI — penanda aksen gradien === */
+.seksi__judul {
+  font-family: var(--font-judul);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--warna-utama);
+  margin-bottom: 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
+/* Blok aksen emas sebelum teks judul */
+.seksi__judul::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 1.2em;
+  background: var(--warna-emas);
+  border-radius: var(--radius-penuh);
+  flex-shrink: 0;
+}
+
+/* Garis pembatas sesudah teks */
+.seksi__judul::after {
+  content: '';
+  flex: 1;
+  height: 1.5px;
+  background: linear-gradient(to right, var(--warna-aksen-muda), transparent);
+  border-radius: 1px;
+}
+
+/* =====================================================
+   HERO / HEADER PROFIL
+   ===================================================== */
+.hero {
+  background: var(--gradien-utama);
+  color: white;
+  padding: 4rem 0 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dekorasi blob — lingkaran halus di latar hero */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(255,255,255,.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  left: -40px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(15,118,110,.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero__inner {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  position: relative; /* agar berada di atas pseudo-element */
+  z-index: 1;
+}
+
+.hero__foto-wrap {
+  flex-shrink: 0;
+}
+
+/* Foto profil — ring putih + bayangan besar */
+.hero__foto {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255,255,255,0.9);
+  box-shadow: var(--bayangan-lg);
+  background: rgba(255,255,255,.15);
+}
+
+.hero__foto-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  border: 4px solid rgba(255,255,255,0.6);
+  box-shadow: var(--bayangan-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  color: rgba(255,255,255,0.7);
+}
+
+.hero__info {
+  flex: 1;
+  min-width: 220px;
+}
+
+.hero__nama {
+  font-family: var(--font-judul);
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 800;
+  margin-bottom: 0.3rem;
+  letter-spacing: -.01em;
+  border-bottom: 2px solid var(--warna-emas);
+  padding-bottom: 0.25rem;
+  display: inline-block;
+}
+
+.hero__profesi {
+  font-size: 1.05rem;
+  font-weight: 500;
+  opacity: .92;
+  margin-bottom: 0.2rem;
+}
+
+.hero__institusi {
+  font-size: 0.95rem;
+  opacity: .82;
+  margin-bottom: 0.2rem;
+}
+
+.hero__nuptk {
+  font-size: 0.82rem;
+  opacity: .7;
+  font-family: 'Courier New', monospace;
+  letter-spacing: .03em;
+}
+
+/* Email publik di hero */
+.hero__email {
+  font-size: 0.9rem;
+  opacity: .85;
+  margin-top: 0.4rem;
+}
+
+.hero__email a {
+  color: rgba(255,255,255,.95);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.hero__email a:hover {
+  color: white;
+  opacity: 1;
+}
+
+/* =====================================================
+   SOSIAL MEDIA — chip pill
+   ===================================================== */
+.sosmed-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+/* Chip pill semi-transparan di atas hero */
+.sosmed-bar__tautan {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-penuh);
+  background: rgba(255,255,255,.2);
+  border: 1px solid rgba(255,255,255,.3);
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background var(--transisi), transform var(--transisi), box-shadow var(--transisi);
+  text-decoration: none;
+  backdrop-filter: blur(4px);
+}
+
+.sosmed-bar__tautan:hover {
+  background: rgba(255,255,255,.35);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+/* Badge teks untuk sosmed */
+.sosmed-bar__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255,255,255,.3);
+  border-radius: 4px;
+  padding: 0 0.25em;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+
+/* =====================================================
+   NAV PUBLIK — tombol admin (desktop only)
+   ===================================================== */
+.nav-publik {
+  background: var(--warna-utama);
+  padding: 0.6rem 0;
+  text-align: right;
+}
+
+.tombol-admin {
+  display: inline-block;
+  padding: 0.4rem 1.1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.85);
+  border: 1.5px solid rgba(255,255,255,.35);
+  border-radius: var(--radius-penuh);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transisi);
+}
+
+.tombol-admin:hover {
+  color: white;
+  border-color: white;
+  background: rgba(255,255,255,.12);
+  text-decoration: none;
+}
+
+/* Sembunyikan tombol admin di layar mobile */
+@media (max-width: 768px) {
+  .tombol-admin { display: none !important; }
+}
+
+/* =====================================================
+   KARTU
+   ===================================================== */
+.kartu {
+  background: var(--warna-kartu);
+  border-radius: var(--radius-besar);
+  padding: 1.75rem;
+  box-shadow: var(--bayangan);
+  border: 1px solid var(--warna-garis);
+  margin-bottom: 1.25rem;
+  transition: transform var(--transisi), box-shadow var(--transisi);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Aksen tepi atas emas */
+.kartu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--warna-emas);
+  border-radius: var(--radius-besar) var(--radius-besar) 0 0;
+}
+
+.kartu:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--bayangan-lg);
+}
+
+.kartu__judul {
+  font-family: var(--font-judul);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  color: var(--warna-teks);
+}
+
+.kartu__meta {
+  font-size: 0.85rem;
+  color: var(--warna-teks-muda);
+  margin-bottom: 0.6rem;
+}
+
+/* Badge tahun — aksen border emas (non-teks) */
+.kartu__tahun {
+  border: 1px solid var(--warna-emas);
+}
+
+.kartu__tautan {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* =====================================================
+   GALERI
+   ===================================================== */
+.galeri-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1.25rem;
+}
+
+.galeri-item {
+  background: var(--warna-kartu);
+  border-radius: var(--radius-besar);
+  overflow: hidden;
+  box-shadow: var(--bayangan);
+  border: 1px solid var(--warna-garis);
+  transition: transform var(--transisi), box-shadow var(--transisi);
+}
+
+.galeri-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--bayangan-lg);
+}
+
+/* Gambar galeri — zoom halus saat hover */
+.galeri-item__gambar {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  background: var(--warna-latar);
+  transition: transform var(--transisi);
+  display: block;
+}
+
+.galeri-item:hover .galeri-item__gambar {
+  transform: scale(1.05);
+}
+
+.galeri-item__info {
+  padding: 0.9rem 1rem;
+}
+
+.galeri-item__judul {
+  font-family: var(--font-judul);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--warna-teks);
+}
+
+.galeri-item__keterangan {
+  font-size: 0.8rem;
+  color: var(--warna-teks-muda);
+  margin-top: 0.25rem;
+}
+
+/* =====================================================
+   DOKUMEN
+   ===================================================== */
+.dokumen-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.dokumen-item {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  background: var(--warna-kartu);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.4rem;
+  box-shadow: var(--bayangan-sm);
+  border: 1px solid var(--warna-garis);
+  transition: transform var(--transisi), box-shadow var(--transisi);
+}
+
+.dokumen-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--bayangan);
+}
+
+/* Ikon dalam lingkaran ber-tint teal */
+.dokumen-item__ikon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  width: 2.8rem;
+  height: 2.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--warna-aksen-muda);
+  border-radius: 50%;
+}
+
+.dokumen-item__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dokumen-item__judul {
+  font-family: var(--font-judul);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dokumen-item__meta {
+  font-size: 0.8rem;
+  color: var(--warna-teks-muda);
+  margin-top: 0.15rem;
+}
+
+/* Tombol unduh */
+.dokumen-item__unduh {
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.4rem 1rem;
+  border: 2px solid var(--warna-aksen);
+  border-radius: var(--radius-penuh);
+  color: var(--warna-utama);
+  white-space: nowrap;
+  transition: all var(--transisi);
+  background: transparent;
+}
+
+.dokumen-item__unduh:hover {
+  background: var(--warna-aksen);
+  color: white;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(15,118,110,.3);
+}
+
+/* =====================================================
+   STATUS / LOADING / KOSONG
+   ===================================================== */
+.status-loading,
+.status-kosong {
+  text-align: center;
+  padding: 2.5rem;
+  color: var(--warna-teks-muda);
+  font-size: 0.95rem;
+}
+
+/* Spinner berwarna aksen teal */
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3.5px solid var(--warna-aksen-muda);
+  border-top-color: var(--warna-aksen);
+  border-radius: 50%;
+  animation: putar 0.7s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes putar {
+  to { transform: rotate(360deg); }
+}
+
+/* =====================================================
+   TOAST NOTIFIKASI
+   ===================================================== */
+#toast-container {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 350px;
+}
+
+.toast {
+  padding: 0.9rem 1.25rem 0.9rem 1rem;
+  border-radius: var(--radius);
+  color: var(--warna-teks);
+  background: var(--warna-kartu);
+  font-size: 0.9rem;
+  box-shadow: var(--bayangan-lg);
+  animation: slideInToast .3s var(--transisi) both;
+  word-break: break-word;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  border-left: 4px solid var(--warna-garis);
+}
+
+/* Garis kiri tebal sesuai status */
+.toast--sukses { border-left-color: var(--warna-sukses); }
+.toast--gagal  { border-left-color: var(--warna-bahaya); }
+.toast--info   { border-left-color: var(--warna-aksen); }
+
+@keyframes slideInToast {
+  from { opacity: 0; transform: translateX(40px) scale(.96); }
+  to   { opacity: 1; transform: translateX(0)  scale(1); }
+}
+
+/* =====================================================
+   ADMIN — Panel
+   ===================================================== */
+.admin-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header admin */
+.admin-header {
+  background: var(--gradien-utama);
+  color: white;
+  padding: 0.85rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--bayangan);
+}
+
+.admin-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-header__judul {
+  font-family: var(--font-judul);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.admin-header__aksi {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+/* Navigasi tab admin — segmented pill */
+.admin-nav {
+  background: var(--warna-kartu);
+  border-bottom: 1px solid var(--warna-garis);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-nav__list {
+  display: flex;
+  white-space: nowrap;
+  padding: 0.6rem 1rem;
+  gap: 0.3rem;
+}
+
+.admin-nav__item {
+  padding: 0.55rem 1.1rem;
+  font-family: var(--font-judul);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--warna-teks-muda);
+  cursor: pointer;
+  border-radius: var(--radius-penuh);
+  transition: all var(--transisi);
+  flex-shrink: 0;
+  border: 1.5px solid transparent;
+  user-select: none;
+}
+
+.admin-nav__item:hover {
+  color: var(--warna-utama);
+  background: var(--warna-aksen-muda);
+}
+
+/* Item aktif — latar gradien navy-teal, teks putih */
+.admin-nav__item.aktif {
+  background: var(--gradien-utama);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 2px 10px rgba(30,58,95,.35);
+}
+
+/* Konten tab */
+.admin-konten {
+  flex: 1;
+  padding: 2rem 0;
+}
+
+.admin-panel {
+  display: none;
+}
+
+.admin-panel.aktif {
+  display: block;
+  animation: fadeUp .3s var(--transisi) both;
+}
+
+/* =====================================================
+   FORM
+   ===================================================== */
+.form-group {
+  margin-bottom: 1.35rem;
+}
+
+.form-group label {
+  display: block;
+  font-family: var(--font-judul);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--warna-teks-muda);
+  margin-bottom: 0.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid var(--warna-garis);
+  border-radius: var(--radius);
+  font-family: var(--font-utama);
+  font-size: 0.95rem;
+  color: var(--warna-teks);
+  background: white;
+  transition: border-color var(--transisi), box-shadow var(--transisi);
+}
+
+/* Focus ring teal */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--warna-aksen);
+  box-shadow: 0 0 0 3px rgba(15,118,110,.25);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.form-group input[type="file"] {
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+}
+
+.form-hint {
+  font-size: 0.78rem;
+  color: var(--warna-teks-muda);
+  margin-top: 0.35rem;
+  line-height: 1.5;
+}
+
+/* Preview foto */
+.foto-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--warna-aksen-muda);
+  margin-bottom: 0.75rem;
+  display: none;
+  box-shadow: var(--bayangan-sm);
+}
+
+.foto-preview.tampil {
+  display: block;
+}
+
+/* =====================================================
+   TOMBOL
+   ===================================================== */
+.tombol {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.4rem;
+  border: none;
+  border-radius: var(--radius-penuh);
+  font-family: var(--font-judul);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transisi);
+  text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: .01em;
+}
+
+.tombol:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Utama — gradien navy-teal, teks putih */
+.tombol--utama {
+  background: var(--gradien-utama);
+  color: white;
+  box-shadow: 0 4px 14px rgba(30,58,95,.3);
+}
+
+.tombol--utama:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(30,58,95,.4);
+  color: white;
+  text-decoration: none;
+}
+
+/* Sekunder — outline/tint teal */
+.tombol--sekunder {
+  background: var(--warna-aksen-muda);
+  color: var(--warna-utama);
+  border: 1.5px solid var(--warna-aksen-muda);
+}
+
+.tombol--sekunder:hover:not(:disabled) {
+  background: white;
+  border-color: var(--warna-aksen);
+  color: var(--warna-utama);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* Bahaya — merah */
+.tombol--bahaya {
+  background: var(--warna-bahaya);
+  color: white;
+  box-shadow: 0 4px 12px rgba(220,38,38,.25);
+}
+
+.tombol--bahaya:hover:not(:disabled) {
+  background: #b91c1c;
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(220,38,38,.35);
+}
+
+/* Kecil */
+.tombol--kecil {
+  padding: 0.38rem 0.9rem;
+  font-size: 0.8rem;
+}
+
+/* =====================================================
+   TABEL ADMIN
+   ===================================================== */
+.tabel-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-besar);
+  box-shadow: var(--bayangan-sm);
+  border: 1px solid var(--warna-garis);
+}
+
+.tabel-admin {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  font-size: 0.9rem;
+}
+
+/* Header tabel — tint teal lembut */
+.tabel-admin th {
+  background: var(--warna-aksen-muda);
+  color: var(--warna-utama);
+  padding: 0.85rem 1.1rem;
+  text-align: left;
+  font-family: var(--font-judul);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.tabel-admin td {
+  padding: 0.8rem 1.1rem;
+  border-bottom: 1px solid var(--warna-garis);
+  vertical-align: middle;
+}
+
+.tabel-admin tr:last-child td {
+  border-bottom: none;
+}
+
+/* Zebra sangat halus */
+.tabel-admin tbody tr:nth-child(even) td {
+  background: #F7F6F2;
+}
+
+/* Hover baris */
+.tabel-admin tr:hover td {
+  background: var(--warna-aksen-muda);
+}
+
+/* =====================================================
+   MODAL
+   ===================================================== */
+.modal-latar {
+  position: fixed;
+  inset: 0;
+  /* Latar gelap + blur */
+  background: rgba(26,36,51,.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  overflow-y: auto;
+}
+
+.modal-latar.tersembunyi {
+  display: none;
+}
+
+/* Animasi scale-in saat muncul */
+.modal-kotak {
+  background: white;
+  border-radius: var(--radius-besar);
+  padding: 2.25rem;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: var(--bayangan-lg);
+  position: relative;
+  animation: scaleInModal .25s var(--transisi) both;
+}
+
+@keyframes scaleInModal {
+  from { opacity: 0; transform: scale(.95) translateY(16px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+.modal-kotak__judul {
+  font-family: var(--font-judul);
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  padding-right: 2.5rem;
+  color: var(--warna-teks);
+}
+
+.modal-tutup {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: var(--warna-latar);
+  border: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--warna-teks-muda);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transisi);
+}
+
+.modal-tutup:hover {
+  background: var(--warna-aksen-muda);
+  color: var(--warna-utama);
+}
+
+/* =====================================================
+   LOGIN
+   ===================================================== */
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradien-utama);
+  padding: 1.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dekorasi blob di balik form login */
+.login-wrap::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,.15) 0%, transparent 65%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.login-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  left: -60px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(15,118,110,.3) 0%, transparent 65%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Kartu login putih */
+.login-kotak {
+  background: white;
+  border-radius: var(--radius-besar);
+  padding: 2.75rem 2.25rem;
+  width: 100%;
+  max-width: 390px;
+  box-shadow: var(--bayangan-lg);
+  position: relative;
+  z-index: 1;
+  animation: scaleInModal .35s var(--transisi) both;
+}
+
+.login-kotak__judul {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-kotak__judul h1 {
+  font-family: var(--font-judul);
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--warna-utama);
+}
+
+.login-kotak__judul p {
+  font-size: 0.85rem;
+  color: var(--warna-teks-muda);
+  margin-top: 0.3rem;
+}
+
+/* Pesan error login */
+.pesan-error {
+  background: #FEF2F2;
+  border: 1.5px solid #FECACA;
+  color: var(--warna-bahaya);
+  border-radius: var(--radius);
+  padding: 0.8rem 1rem;
+  font-size: 0.88rem;
+  margin-bottom: 1.1rem;
+  display: none;
+}
+
+.pesan-error.tampil {
+  display: block;
+}
+
+/* =====================================================
+   PROFIL ADMIN (2 kolom)
+   ===================================================== */
+.profil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .profil-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profil-grid--penuh {
+  grid-column: 1 / -1;
+}
+
+/* =====================================================
+   PROGRESS BAR UPLOAD
+   ===================================================== */
+.progress-wrap {
+  display: none;
+  margin-top: 0.6rem;
+}
+
+.progress-wrap.tampil {
+  display: block;
+}
+
+.progress-bar {
+  height: 6px;
+  border-radius: var(--radius-penuh);
+  background: var(--warna-garis);
+  overflow: hidden;
+}
+
+.progress-bar__isi {
+  height: 100%;
+  background: var(--gradien-utama);
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* =====================================================
+   GALERI ADMIN
+   ===================================================== */
+.galeri-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1.1rem;
+}
+
+.galeri-admin-item {
+  background: white;
+  border-radius: var(--radius-besar);
+  overflow: hidden;
+  box-shadow: var(--bayangan-sm);
+  border: 1px solid var(--warna-garis);
+  transition: transform var(--transisi), box-shadow var(--transisi);
+}
+
+.galeri-admin-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--bayangan);
+}
+
+.galeri-admin-item__gambar {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  background: var(--warna-latar);
+  transition: transform var(--transisi);
+  display: block;
+}
+
+.galeri-admin-item:hover .galeri-admin-item__gambar {
+  transform: scale(1.04);
+}
+
+.galeri-admin-item__info {
+  padding: 0.75rem;
+}
+
+.galeri-admin-item__judul {
+  font-family: var(--font-judul);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  color: var(--warna-teks);
+}
+
+.galeri-admin-item__ket {
+  font-size: 0.78rem;
+  color: var(--warna-teks-muda);
+  margin-bottom: 0.5rem;
+}
+
+.galeri-admin-item__aksi {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+footer {
+  background: var(--warna-utama);
+  color: rgba(255,255,255,.7);
+  text-align: center;
+  padding: 1.5rem 1.25rem;
+  font-size: 0.82rem;
+  margin-top: 2.5rem;
+}
+
+/* =====================================================
+   ANIMASI MASUK HALUS (fade-up)
+   ===================================================== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================================
+   AKSESIBILITAS — kurangi gerakan
+   ===================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =====================================================
+   RESPONSIVE — 768px
+   ===================================================== */
+@media (max-width: 768px) {
+  .hero__inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .sosmed-bar {
+    justify-content: center;
+  }
+
+  .hero {
+    padding: 3rem 0 2.5rem;
+  }
+
+  .seksi {
+    padding: 2.5rem 0;
+  }
+
+  .admin-nav__item {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  .galeri-grid {
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  }
+
+  /* Tabel scrollable di mobile */
+  .tabel-wrapper {
+    border-radius: var(--radius);
+  }
+}
+
+/* =====================================================
+   RESPONSIVE — 480px
+   ===================================================== */
+@media (max-width: 480px) {
+  .modal-kotak {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .login-kotak {
+    padding: 2.25rem 1.25rem;
+  }
+
+  .kartu {
+    padding: 1.35rem 1.1rem;
+  }
+
+  .dokumen-item {
+    flex-wrap: wrap;
+  }
+
+  .dokumen-item__unduh {
+    width: 100%;
+    justify-content: center;
+  }
+
+  #toast-container {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
+  }
+}
