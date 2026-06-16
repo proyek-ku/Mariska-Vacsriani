@@ -3,452 +3,2475 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Admin &mdash; Profil Dosen</title>
+  <meta name="description" content="Personal website">
+  <title>Personal Website</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans (judul) + Inter (teks) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- pdfmake (client-side PDF generator) — versi 0.2.x via jsDelivr CDN -->
+  <!-- WAJIB DIUJI DI BROWSER: font Roboto dari vfs_fonts harus ter-load sebelum createPdf dipanggil -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.2/build/pdfmake.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.2/build/vfs_fonts.js"></script>
+
+  <!-- ============================================================
+       CSS INLINE — KHUSUS HALAMAN PUBLIK (index)
+       Tidak terhubung ke css/styles.css (masih dipakai admin.html).
+       ============================================================ -->
+  <style>
+    /* =====================================================
+       RESET & DASAR
+       ===================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* =====================================================
+       VARIABEL DESAIN — Navy + Teal + Emas (konsisten dgn admin)
+       ===================================================== */
+    :root {
+      --warna-utama:      #1E3A5F;
+      --warna-aksen:      #0F766E;
+      --warna-aksen-2:    #1E3A5F;
+      --warna-emas:       #C9A227;
+      --warna-aksen-muda: #EAF1EE;
+      --warna-teks:       #1A2433;
+      --warna-teks-muda:  #5A6B7B;
+      --warna-latar:      #FBFAF6;
+      --warna-kartu:      #FFFFFF;
+      --warna-garis:      #E5E2D8;
+
+      --gradien-utama: linear-gradient(135deg, #1E3A5F, #0F766E);
+
+      --radius:       14px;
+      --radius-besar: 22px;
+      --radius-penuh: 999px;
+
+      --bayangan-sm: 0 1px 3px rgba(30,58,95,.08);
+      --bayangan:    0 6px 20px rgba(30,58,95,.10);
+      --bayangan-lg: 0 16px 40px rgba(30,58,95,.16);
+
+      --transisi: .25s cubic-bezier(.4,0,.2,1);
+
+      --font-judul: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-utama: 'Inter', system-ui, -apple-system, sans-serif;
+
+      --warna-bahaya:     #C0392B;
+      --warna-sukses:     #15803D;
+      --warna-peringatan: #B45309;
+    }
+
+    /* =====================================================
+       DASAR HALAMAN
+       ===================================================== */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-utama);
+      background-color: var(--warna-latar);
+      color: var(--warna-teks);
+      line-height: 1.65;
+      font-size: 16px;
+      /* Mencegah konten melompat saat scrollbar muncul */
+      overflow-x: hidden;
+    }
+
+    a {
+      color: var(--warna-aksen);
+      text-decoration: none;
+      transition: color var(--transisi);
+    }
+    a:hover {
+      color: var(--warna-utama);
+      text-decoration: underline;
+    }
+
+    img { max-width: 100%; height: auto; display: block; }
+    ul, ol { list-style: none; }
+
+    h1, h2, h3 {
+      font-family: var(--font-judul);
+      line-height: 1.2;
+    }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.8rem); font-weight: 800; }
+    h2 { font-size: clamp(1.2rem, 3vw, 1.7rem); font-weight: 700; }
+    h3 { font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 700; }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* =====================================================
+       NAVBAR — sticky, muncul saat scroll (via JS), latar blur
+       ===================================================== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      /* Awalnya transparan; JS menambahkan .navbar--solid saat scroll */
+      background: transparent;
+      transition: background var(--transisi), box-shadow var(--transisi);
+      padding: 0.9rem 0;
+      /* Diperlukan agar panel dropdown mobile (position:absolute) mengacu ke sini */
+    }
+
+    /* Navbar solid setelah scroll (ditambahkan via JS) */
+    .navbar--solid {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 var(--warna-garis), var(--bayangan-sm);
+    }
+
+    .navbar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    /* Inisial/nama di kiri navbar */
+    .navbar__brand {
+      font-family: var(--font-judul);
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      transition: color var(--transisi);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    .navbar--solid .navbar__brand {
+      color: var(--warna-utama);
+    }
+
+    /* Tautan navigasi anchor — desktop */
+    .navbar__links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .navbar__link {
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: var(--font-judul);
+      color: rgba(255,255,255,0.85);
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-penuh);
+      transition: all var(--transisi);
+      text-decoration: none;
+    }
+
+    .navbar__link:hover {
+      color: white;
+      background: rgba(255,255,255,0.15);
+      text-decoration: none;
+    }
+
+    .navbar--solid .navbar__link {
+      color: var(--warna-teks-muda);
+    }
+    .navbar--solid .navbar__link:hover {
+      color: var(--warna-utama);
+      background: var(--warna-aksen-muda);
+    }
+
+    /* =====================================================
+       HAMBURGER — tombol buka menu mobile
+       ===================================================== */
+    .navbar__toggle {
+      display: none; /* disembunyikan di desktop */
+      align-items: center;
+      justify-content: center;
+      width: 2.4rem;
+      height: 2.4rem;
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,0.5);
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: rgba(255,255,255,0.9);
+      transition: background var(--transisi), border-color var(--transisi), color var(--transisi);
+      flex-shrink: 0;
+    }
+
+    .navbar__toggle:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: white;
+      color: white;
+    }
+
+    .navbar__toggle:focus-visible {
+      outline: 2px solid white;
+      outline-offset: 2px;
+    }
+
+    .navbar--solid .navbar__toggle {
+      border-color: var(--warna-aksen);
+      color: var(--warna-utama);
+    }
+
+    .navbar--solid .navbar__toggle:hover {
+      background: var(--warna-aksen-muda);
+      border-color: var(--warna-utama);
+    }
+
+    .navbar--solid .navbar__toggle:focus-visible {
+      outline-color: var(--warna-utama);
+    }
+
+    /* Tombol Admin — HANYA desktop (sembunyikan di mobile via media query) */
+    .navbar__admin {
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: var(--font-judul);
+      padding: 0.4rem 1rem;
+      border-radius: var(--radius-penuh);
+      border: 1.5px solid rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      transition: all var(--transisi);
+      white-space: nowrap;
+    }
+    .navbar__admin:hover {
+      border-color: white;
+      color: white;
+      background: rgba(255,255,255,0.15);
+      text-decoration: none;
+    }
+    .navbar--solid .navbar__admin {
+      border-color: var(--warna-aksen);
+      color: var(--warna-utama);
+    }
+    .navbar--solid .navbar__admin:hover {
+      background: var(--warna-aksen);
+      color: white;
+      border-color: var(--warna-aksen);
+    }
+
+    /* =====================================================
+       PANEL MENU MOBILE — dropdown di bawah navbar
+       Ditampilkan saat .navbar__links--terbuka aktif.
+       Hanya berlaku di mobile (≤768px); di desktop, aturan
+       ini tidak dipakai karena hamburger tidak terlihat dan
+       class tidak pernah di-toggle.
+       ===================================================== */
+    @media (max-width: 768px) {
+      /* Sembunyikan tombol Admin di semua kondisi mobile */
+      .navbar__admin {
+        display: none !important;
+      }
+
+      /* Tampilkan tombol hamburger */
+      .navbar__toggle {
+        display: flex;
+      }
+
+      /* Panel link: sembunyikan secara default */
+      .navbar__links {
+        display: flex;              /* tetap flex agar item tersusun */
+        flex-direction: column;
+        gap: 0;
+        position: absolute;
+        top: 100%;                  /* tepat di bawah navbar */
+        left: 0;
+        right: 0;
+        background: rgba(255,255,255,0.97);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 8px 24px rgba(30,58,95,.14), 0 1px 0 var(--warna-garis);
+        border-radius: 0 0 var(--radius-besar) var(--radius-besar);
+        padding: 0.5rem 0 0.75rem;
+        z-index: 199;               /* di bawah navbar (z-index 200) tapi di atas hero */
+
+        /* State tersembunyi: geser ke atas + opacity 0 */
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+        visibility: hidden;
+        transition:
+          opacity .22s cubic-bezier(.4,0,.2,1),
+          transform .22s cubic-bezier(.4,0,.2,1),
+          visibility 0s linear .22s;
+      }
+
+      /* State terbuka */
+      .navbar__links--terbuka {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+        visibility: visible;
+        transition:
+          opacity .22s cubic-bezier(.4,0,.2,1),
+          transform .22s cubic-bezier(.4,0,.2,1),
+          visibility 0s linear 0s;
+      }
+
+      /* Setiap link di panel mobile */
+      .navbar__link {
+        display: block;
+        color: var(--warna-teks) !important;
+        font-size: 0.95rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0;
+        transition: background var(--transisi), color var(--transisi);
+      }
+
+      .navbar__link:hover,
+      .navbar__link:focus-visible {
+        background: var(--warna-aksen-muda);
+        color: var(--warna-utama) !important;
+        text-decoration: none;
+      }
+
+      .navbar__link:focus-visible {
+        outline: 2px solid var(--warna-aksen);
+        outline-offset: -2px;
+      }
+    }
+
+    /* Hormati prefers-reduced-motion: hapus transisi panel */
+    @media (prefers-reduced-motion: reduce) {
+      .navbar__links {
+        transition: none !important;
+      }
+    }
+
+    /* =====================================================
+       HERO — besar, gradien, dekorasi blob
+       ===================================================== */
+    .hero {
+      min-height: 100svh;
+      background: var(--gradien-utama);
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 7rem 0 5rem; /* ruang atas untuk navbar */
+    }
+
+    /* Blob dekorasi 1 — kanan atas */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -100px;
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(255,255,255,.14) 0%, transparent 65%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Blob dekorasi 2 — kiri bawah */
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -60px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(15,118,110,.28) 0%, transparent 65%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Blob dekorasi 3 — tengah (via elemen anak) */
+    .hero__blob-mid {
+      position: absolute;
+      top: 30%;
+      left: 20%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255,255,255,.06) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero__inner {
+      display: flex;
+      align-items: center;
+      gap: 3.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Kolom kiri: foto */
+    .hero__foto-col {
+      flex-shrink: 0;
+    }
+
+    /* Foto bundar dengan ring + bayangan */
+    .hero__foto-wrap {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+
+    /* Ring terluar (gradien animasi halus) */
+    .hero__foto-ring {
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(255,255,255,.6) 0%, rgba(201,162,39,.7) 40%, rgba(255,255,255,.6) 100%);
+      animation: putarRing 8s linear infinite;
+    }
+
+    @keyframes putarRing {
+      to { transform: rotate(360deg); }
+    }
+
+    .hero__foto {
+      position: relative;
+      z-index: 1;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid rgba(255,255,255,0.95);
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+      background: rgba(255,255,255,.15);
+    }
+
+    /* Placeholder saat tidak ada foto */
+    .hero__foto-placeholder {
+      position: relative;
+      z-index: 1;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      border: 5px solid rgba(255,255,255,0.7);
+      box-shadow: 0 20px 50px rgba(0,0,0,.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      color: rgba(255,255,255,0.75);
+    }
+
+    /* Kolom kanan: info */
+    .hero__info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Label kecil di atas nama */
+    .hero__label {
+      display: inline-block;
+      font-family: var(--font-judul);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.75);
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.25);
+      padding: 0.3rem 0.85rem;
+      border-radius: var(--radius-penuh);
+      margin-bottom: 1rem;
+    }
+
+    /* Nama lengkap dengan gelar — gradien teks */
+    .hero__nama {
+      font-family: var(--font-judul);
+      font-weight: 800;
+      color: white;
+      letter-spacing: -.02em;
+      margin-bottom: 0.5rem;
+      word-break: break-word;
+      border-bottom: 2px solid var(--warna-emas);
+      padding-bottom: 0.3rem;
+      display: inline-block;
+    }
+
+    .hero__profesi {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.9);
+      margin-bottom: 0.35rem;
+    }
+
+    .hero__institusi {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,.8);
+      margin-bottom: 0.25rem;
+    }
+
+    .hero__nuptk {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,.65);
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.35rem;
+    }
+
+    .hero__email a {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,.9);
+      text-underline-offset: 3px;
+      text-decoration: underline dotted rgba(255,255,255,.5);
+    }
+    .hero__email a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    /* Chip sosial media */
+    .sosmed-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.35rem;
+    }
+
+    .sosmed-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.95rem;
+      border-radius: var(--radius-penuh);
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.3);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: var(--font-judul);
+      text-decoration: none;
+      transition: background var(--transisi), transform var(--transisi), box-shadow var(--transisi);
+      backdrop-filter: blur(4px);
+    }
+
+    .sosmed-chip:hover {
+      background: rgba(255,255,255,.32);
+      color: white;
+      text-decoration: none;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,.15);
+    }
+
+    .sosmed-chip__badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.5em;
+      font-size: 0.7rem;
+      font-weight: 800;
+      background: rgba(255,255,255,.28);
+      border-radius: 4px;
+      padding: 0 0.25em;
+      line-height: 1.6;
+    }
+
+    /* Tombol CTA di hero */
+    .hero__cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.75rem;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.5rem;
+      border-radius: var(--radius-penuh);
+      font-family: var(--font-judul);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transisi);
+      text-decoration: none;
+      letter-spacing: .01em;
+      border: none;
+    }
+
+    /* CTA utama — putih solid */
+    .cta-btn--utama {
+      background: white;
+      color: var(--warna-utama);
+      box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    }
+
+    .cta-btn--utama:hover {
+      background: var(--warna-aksen-muda);
+      color: var(--warna-utama);
+      text-decoration: none;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0,0,0,.22);
+    }
+
+    /* CTA sekunder — outline putih */
+    .cta-btn--outline {
+      background: transparent;
+      color: white;
+      border: 2px solid rgba(255,255,255,.6);
+    }
+
+    .cta-btn--outline:hover {
+      background: rgba(255,255,255,.15);
+      border-color: white;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-2px);
+    }
+
+    /* Petunjuk scroll bawah */
+    .hero__scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      color: rgba(255,255,255,.6);
+      font-size: 0.75rem;
+      font-family: var(--font-judul);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      z-index: 1;
+      animation: turunNaik 2s ease-in-out infinite;
+    }
+
+    .hero__scroll-hint svg {
+      animation: turunNaik 2s ease-in-out infinite;
+    }
+
+    @keyframes turunNaik {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(6px); }
+    }
+
+    /* =====================================================
+       SEKSI UTAMA — layout & judul bersama
+       ===================================================== */
+    .seksi {
+      padding: 5rem 0;
+    }
+
+    .seksi + .seksi {
+      border-top: 1px solid var(--warna-garis);
+    }
+
+    /* Penanda judul seksi dgn blok aksen gradien */
+    .seksi__judul {
+      font-family: var(--font-judul);
+      font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+      font-weight: 800;
+      color: var(--warna-utama);
+      margin-bottom: 2.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .seksi__judul::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 1.2em;
+      background: var(--warna-emas);
+      border-radius: var(--radius-penuh);
+      flex-shrink: 0;
+    }
+
+    .seksi__judul::after {
+      content: '';
+      flex: 1;
+      height: 1.5px;
+      background: linear-gradient(to right, var(--warna-aksen-muda), transparent);
+      border-radius: 1px;
+    }
+
+    /* =====================================================
+       SEKSI TENTANG — bio
+       ===================================================== */
+    #seksi-tentang .bio-teks {
+      max-width: 680px;
+      font-size: 1.05rem;
+      line-height: 1.85;
+      color: var(--warna-teks);
+      white-space: pre-wrap;
+    }
+
+    /* =====================================================
+       KARTU PENELITIAN / PENGABDIAN
+       ===================================================== */
+    .kartu-grid {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .kartu {
+      background: var(--warna-kartu);
+      border-radius: var(--radius-besar);
+      padding: 1.75rem 1.75rem 1.75rem 2.1rem;
+      box-shadow: var(--bayangan);
+      border: 1px solid var(--warna-garis);
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transisi), box-shadow var(--transisi);
+    }
+
+    /* Aksen garis kiri emas */
+    .kartu::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--warna-emas);
+      border-radius: var(--radius-besar) 0 0 var(--radius-besar);
+    }
+
+    .kartu:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--bayangan-lg);
+    }
+
+    .kartu__tahun {
+      display: inline-block;
+      font-family: var(--font-judul);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--warna-aksen);
+      background: var(--warna-aksen-muda);
+      padding: 0.2rem 0.65rem;
+      border-radius: var(--radius-penuh);
+      margin-bottom: 0.6rem;
+      border: 1px solid var(--warna-emas);
+    }
+
+    .kartu__judul {
+      font-family: var(--font-judul);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--warna-teks);
+      margin-bottom: 0.75rem;
+      line-height: 1.45;
+    }
+
+    .kartu__tautan {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--warna-utama);
+      border: 1.5px solid var(--warna-aksen);
+      padding: 0.35rem 0.9rem;
+      border-radius: var(--radius-penuh);
+      transition: all var(--transisi);
+      text-decoration: none;
+    }
+
+    .kartu__tautan:hover {
+      background: var(--warna-aksen);
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(15,118,110,.3);
+    }
+
+    /* =====================================================
+       GALERI — grid foto dgn hover overlay
+       ===================================================== */
+    .galeri-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .galeri-item {
+      background: var(--warna-kartu);
+      border-radius: var(--radius-besar);
+      overflow: hidden;
+      box-shadow: var(--bayangan);
+      border: 1px solid var(--warna-garis);
+      cursor: pointer;
+      position: relative;
+      transition: transform var(--transisi), box-shadow var(--transisi);
+    }
+
+    .galeri-item:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--bayangan-lg);
+    }
+
+    .galeri-item__gambar-wrap {
+      position: relative;
+      overflow: hidden;
+      height: 185px;
+    }
+
+    .galeri-item__gambar {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: var(--warna-latar);
+      transition: transform .4s cubic-bezier(.4,0,.2,1);
+      display: block;
+    }
+
+    .galeri-item:hover .galeri-item__gambar {
+      transform: scale(1.07);
+    }
+
+    /* Overlay caption saat hover */
+    .galeri-item__overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(30,58,95,.85) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity var(--transisi);
+      display: flex;
+      align-items: flex-end;
+      padding: 1rem;
+    }
+
+    .galeri-item:hover .galeri-item__overlay {
+      opacity: 1;
+    }
+
+    .galeri-item__overlay-teks {
+      color: white;
+      font-family: var(--font-judul);
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .galeri-item__info {
+      padding: 0.85rem 1rem;
+    }
+
+    .galeri-item__judul {
+      font-family: var(--font-judul);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--warna-teks);
+      margin-bottom: 0.2rem;
+    }
+
+    .galeri-item__keterangan {
+      font-size: 0.78rem;
+      color: var(--warna-teks-muda);
+    }
+
+    /* Lightbox sederhana */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,20,30,.92);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transisi);
+    }
+
+    .lightbox.aktif {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lightbox__gambar {
+      max-width: min(90vw, 900px);
+      max-height: 80vh;
+      border-radius: var(--radius-besar);
+      box-shadow: 0 24px 60px rgba(0,0,0,.6);
+      object-fit: contain;
+    }
+
+    .lightbox__tutup {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.5rem;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      color: white;
+      font-size: 1.4rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transisi);
+      line-height: 1;
+    }
+
+    .lightbox__tutup:hover {
+      background: rgba(255,255,255,.25);
+    }
+
+    .lightbox__caption {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.6);
+      color: rgba(255,255,255,.9);
+      font-family: var(--font-judul);
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.55rem 1.25rem;
+      border-radius: var(--radius-penuh);
+      white-space: nowrap;
+      max-width: 90vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* =====================================================
+       DOKUMEN
+       ===================================================== */
+    .dokumen-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .dokumen-item {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      background: var(--warna-kartu);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.5rem;
+      box-shadow: var(--bayangan-sm);
+      border: 1px solid var(--warna-garis);
+      transition: transform var(--transisi), box-shadow var(--transisi);
+    }
+
+    .dokumen-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--bayangan);
+    }
+
+    .dokumen-item__ikon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--warna-aksen-muda);
+      border-radius: 50%;
+    }
+
+    .dokumen-item__info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .dokumen-item__judul {
+      font-family: var(--font-judul);
+      font-weight: 700;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--warna-teks);
+    }
+
+    .dokumen-item__meta {
+      font-size: 0.8rem;
+      color: var(--warna-teks-muda);
+      margin-top: 0.15rem;
+    }
+
+    .dokumen-item__unduh {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-judul);
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border: 2px solid var(--warna-aksen);
+      border-radius: var(--radius-penuh);
+      color: var(--warna-utama);
+      white-space: nowrap;
+      transition: all var(--transisi);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .dokumen-item__unduh:hover {
+      background: var(--warna-aksen);
+      color: white;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(15,118,110,.32);
+    }
+
+    /* =====================================================
+       KONTAK & FOOTER
+       ===================================================== */
+    .kontak-footer {
+      background: var(--warna-utama);
+      color: rgba(255,255,255,.8);
+      padding: 3.5rem 0 2rem;
+      margin-top: 0;
+    }
+
+    .kontak-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .kontak-nama {
+      font-family: var(--font-judul);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    .kontak-institusi {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,.7);
+    }
+
+    .kontak-email {
+      margin-top: 0.35rem;
+    }
+
+    .kontak-email a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: rgba(255,255,255,.9);
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: underline dotted rgba(255,255,255,.5);
+      text-underline-offset: 3px;
+    }
+
+    .kontak-email a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    /* Ikon sosmed di footer */
+    .kontak-sosmed {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+
+    .kontak-sosmed-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-penuh);
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.22);
+      color: rgba(255,255,255,.85);
+      font-family: var(--font-judul);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all var(--transisi);
+    }
+
+    .kontak-sosmed-chip:hover {
+      background: rgba(255,255,255,.22);
+      color: white;
+      text-decoration: none;
+    }
+
+    .footer-cr {
+      margin-top: 2.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255,255,255,.15);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,.4);
+      text-align: center;
+    }
+
+    /* =====================================================
+       STATUS LOADING & KOSONG
+       ===================================================== */
+    .status-loading {
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--warna-teks-muda);
+      font-size: 0.95rem;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3.5px solid var(--warna-aksen-muda);
+      border-top-color: var(--warna-aksen);
+      border-radius: 50%;
+      animation: putar 0.7s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes putar { to { transform: rotate(360deg); } }
+
+    .status-kosong {
+      text-align: center;
+      padding: 2rem;
+      color: var(--warna-teks-muda);
+      font-size: 0.9rem;
+    }
+
+    /* =====================================================
+       TOMBOL UNDUH CV — loading state
+       ===================================================== */
+    .cta-btn--cv-loading {
+      opacity: 0.65;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* =====================================================
+       TOAST
+       ===================================================== */
+    #toast-container {
+      position: fixed;
+      bottom: 1.75rem;
+      right: 1.75rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-width: 340px;
+    }
+
+    .toast {
+      padding: 0.9rem 1.2rem;
+      border-radius: var(--radius);
+      background: var(--warna-kartu);
+      color: var(--warna-teks);
+      font-size: 0.88rem;
+      box-shadow: var(--bayangan-lg);
+      animation: slideInToast .3s var(--transisi) both;
+      border-left: 4px solid var(--warna-aksen);
+      word-break: break-word;
+    }
+
+    .toast--gagal { border-left-color: var(--warna-bahaya); }
+
+    @keyframes slideInToast {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* =====================================================
+       ANIMASI MASUK (reveal via IntersectionObserver)
+       ===================================================== */
+    /*
+      State awal elemen yang akan dianimasikan.
+      PENTING: bila JS tidak berjalan atau reduced-motion aktif,
+      kelas .akan-reveal TIDAK ditambahkan (lihat JS), sehingga
+      elemen tetap terlihat (opacity default = 1).
+    */
+    .akan-reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .55s cubic-bezier(.4,0,.2,1), transform .55s cubic-bezier(.4,0,.2,1);
+    }
+
+    .sudah-reveal {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+
+    /* =====================================================
+       AKSESIBILITAS — kurangi gerakan
+       ===================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+      /* Pastikan elemen tetap terlihat */
+      .akan-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+
+    /* =====================================================
+       RESPONSIVE — 768px
+       ===================================================== */
+    @media (max-width: 768px) {
+      .hero {
+        min-height: auto;
+        padding: 6rem 0 4rem;
+      }
+
+      .hero__inner {
+        flex-direction: column;
+        text-align: center;
+        gap: 2rem;
+      }
+
+      .hero__foto-wrap {
+        width: 160px;
+        height: 160px;
+        margin: 0 auto;
+      }
+
+      .hero__foto, .hero__foto-placeholder {
+        width: 160px;
+        height: 160px;
+      }
+
+      .hero__foto-ring {
+        inset: -5px;
+      }
+
+      .sosmed-bar {
+        justify-content: center;
+      }
+
+      .hero__cta {
+        justify-content: center;
+      }
+
+      .galeri-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+
+      .seksi {
+        padding: 3.5rem 0;
+      }
+
+      .hero__scroll-hint {
+        display: none;
+      }
+    }
+
+    /* =====================================================
+       RESPONSIVE — 480px
+       ===================================================== */
+    @media (max-width: 480px) {
+      .dokumen-item {
+        flex-wrap: wrap;
+      }
+
+      .dokumen-item__unduh {
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.25rem;
+      }
+
+      #toast-container {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        max-width: none;
+      }
+
+      .galeri-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .galeri-item__gambar-wrap {
+        height: 140px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<!-- =====================================================
-     HALAMAN LOGIN
-     ===================================================== -->
-<div id="halaman-login" class="login-wrap" style="display:none;">
-  <div class="login-kotak">
-    <div class="login-kotak__judul">
-      <h1>Panel Admin</h1>
-      <p>Masuk untuk mengelola konten profil dosen</p>
+  <!-- ============================================================
+       NAVBAR ATAS — sticky, tautan anchor, tombol Admin (desktop)
+       ============================================================ -->
+  <nav class="navbar" id="navbar" aria-label="Navigasi utama">
+    <div class="container">
+      <div class="navbar__inner">
+        <!-- Nama / inisial dosen diisi oleh JS setelah data dimuat -->
+        <a href="#" class="navbar__brand" id="navbar-brand">Personal Website</a>
+
+        <!-- Tautan seksi — di desktop tampil inline, di mobile jadi panel dropdown -->
+        <div class="navbar__links" id="navbar-links" role="list">
+          <a href="#seksi-tentang"    class="navbar__link" role="listitem">Tentang</a>
+          <a href="#seksi-penelitian" class="navbar__link" role="listitem">Penelitian</a>
+          <a href="#seksi-pengabdian" class="navbar__link" role="listitem">Pengabdian</a>
+          <a href="#seksi-galeri"     class="navbar__link" role="listitem">Galeri</a>
+          <a href="#seksi-dokumen"    class="navbar__link" role="listitem">Dokumen</a>
+          <a href="#kontak"           class="navbar__link" role="listitem">Kontak</a>
+        </div>
+
+        <!-- Tombol Admin — HANYA desktop; disembunyikan di mobile via CSS -->
+        <a href="admin.html" class="navbar__admin">&#x1F512; Admin</a>
+
+        <!-- Tombol hamburger — HANYA mobile; disembunyikan di desktop via CSS -->
+        <button
+          class="navbar__toggle"
+          id="navbar-toggle"
+          aria-label="Buka menu"
+          aria-expanded="false"
+          aria-controls="navbar-links"
+          type="button"
+        >
+          <!-- Ikon tiga garis (hamburger) -->
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+            <rect x="2" y="4"  width="16" height="2" rx="1"/>
+            <rect x="2" y="9"  width="16" height="2" rx="1"/>
+            <rect x="2" y="14" width="16" height="2" rx="1"/>
+          </svg>
+        </button>
+      </div>
     </div>
+  </nav>
 
-    <div id="login-pesan" class="pesan-error" role="alert"></div>
-
-    <form id="form-login" novalidate>
-      <div class="form-group">
-        <label for="login-username">Username</label>
-        <input
-          type="text"
-          id="login-username"
-          name="username"
-          autocomplete="username"
-          placeholder="Masukkan username"
-          required
-        >
+  <!-- ============================================================
+       HERO — foto besar, nama, CTA, sosmed
+       ============================================================ -->
+  <header class="hero" id="hero">
+    <div class="hero__blob-mid" aria-hidden="true"></div>
+    <div class="container">
+      <div class="hero__inner" id="hero-inner">
+        <!-- Diisi JS setelah data dimuat -->
+        <div class="status-loading">
+          <div class="spinner"></div>Memuat profil...
+        </div>
       </div>
-      <div class="form-group">
-        <label for="login-password">Password</label>
-        <input
-          type="password"
-          id="login-password"
-          name="password"
-          autocomplete="current-password"
-          placeholder="Masukkan password"
-          required
-        >
-      </div>
-      <button type="submit" class="tombol tombol--utama" style="width:100%;">Masuk</button>
-    </form>
-
-    <p style="text-align:center;margin-top:1.25rem;font-size:0.82rem;">
-      <a href="index.html">&larr; Kembali ke halaman publik</a>
-    </p>
-  </div>
-</div>
-
-<!-- =====================================================
-     HALAMAN DASHBOARD (setelah login)
-     ===================================================== -->
-<div id="halaman-dashboard" class="admin-wrap" style="display:none;">
-
-  <!-- Header -->
-  <header class="admin-header">
-    <div class="container admin-header__inner">
-      <div class="admin-header__judul">&#x1F4CB; Panel Admin Profil Dosen</div>
-      <div class="admin-header__aksi">
-        <a href="index.html" target="_blank" style="color:rgba(255,255,255,0.8);font-size:0.85rem;">
-          &#x1F441; Lihat Halaman Publik
-        </a>
-        <button id="tombol-logout" class="tombol tombol--sekunder tombol--kecil">Keluar</button>
-      </div>
+    </div>
+    <!-- Petunjuk scroll halus -->
+    <div class="hero__scroll-hint" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M10 4v12M4 10l6 6 6-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Gulir
     </div>
   </header>
 
-  <!-- Navigasi Tab -->
-  <nav class="admin-nav" aria-label="Navigasi panel admin">
-    <ul class="admin-nav__list" role="tablist">
-      <li class="admin-nav__item" data-tab="profil"      role="tab" tabindex="0">Profil</li>
-      <li class="admin-nav__item" data-tab="penelitian"  role="tab" tabindex="0">Penelitian</li>
-      <li class="admin-nav__item" data-tab="pengabdian"  role="tab" tabindex="0">Pengabdian</li>
-      <li class="admin-nav__item" data-tab="galeri"      role="tab" tabindex="0">Galeri</li>
-      <li class="admin-nav__item" data-tab="dokumen"     role="tab" tabindex="0">Dokumen</li>
-      <li class="admin-nav__item" data-tab="akun"        role="tab" tabindex="0">Akun</li>
-    </ul>
-  </nav>
+  <!-- ============================================================
+       KONTEN UTAMA
+       ============================================================ -->
+  <main>
 
-  <!-- Konten Tab -->
-  <main class="admin-konten">
-    <div class="container">
+    <!-- Tentang / Bio -->
+    <section class="seksi container" id="seksi-tentang" aria-labelledby="judul-tentang" style="display:none;">
+      <h2 class="seksi__judul" id="judul-tentang">Tentang</h2>
+      <p class="bio-teks" id="konten-bio"></p>
+    </section>
 
-      <!-- ========================
-           TAB: PROFIL
-           ======================== -->
-      <div id="tab-profil" class="admin-panel" role="tabpanel">
-        <h2 style="margin-bottom:1.5rem;">Data Profil</h2>
-
-        <form id="form-profil" novalidate>
-          <!-- Preview foto profil -->
-          <div class="form-group">
-            <label>Foto Profil Saat Ini</label>
-            <img id="profil-foto-preview" class="foto-preview" alt="Foto profil" src="">
-          </div>
-
-          <div class="form-group">
-            <label for="profil_foto_file">Ganti Foto Profil (opsional)</label>
-            <input type="file" id="profil_foto_file" name="foto_file" accept="image/*">
-            <p class="form-hint">Format: JPG, PNG, WebP. Maks. 25 MB. Perubahan foto hanya tersimpan jika klik "Simpan Profil".</p>
-          </div>
-
-          <div class="profil-grid">
-            <div class="form-group">
-              <label for="profil_gelar_depan">Gelar Depan</label>
-              <input type="text" id="profil_gelar_depan" name="gelar_depan" placeholder="Mis: Prof. Dr.">
-            </div>
-            <div class="form-group">
-              <label for="profil_gelar_belakang">Gelar Belakang</label>
-              <input type="text" id="profil_gelar_belakang" name="gelar_belakang" placeholder="Mis: M.Kes., Sp.PD">
-            </div>
-
-            <div class="form-group profil-grid--penuh">
-              <label for="profil_nama_lengkap">Nama Lengkap (tanpa gelar)</label>
-              <input type="text" id="profil_nama_lengkap" name="nama_lengkap" placeholder="Nama lengkap tanpa gelar">
-            </div>
-
-            <div class="form-group">
-              <label for="profil_nuptk">NUPTK</label>
-              <input type="text" id="profil_nuptk" name="nuptk" placeholder="Nomor NUPTK">
-            </div>
-            <div class="form-group">
-              <label for="profil_email_publik">Email Publik</label>
-              <input type="email" id="profil_email_publik" name="email_publik" placeholder="email@contoh.com">
-            </div>
-
-            <div class="form-group">
-              <label for="profil_profesi">Profesi</label>
-              <input type="text" id="profil_profesi" name="profesi" placeholder="Mis: Dosen Tetap">
-            </div>
-            <div class="form-group">
-              <label for="profil_jabatan">Jabatan Fungsional</label>
-              <input type="text" id="profil_jabatan" name="jabatan" placeholder="Mis: Lektor Kepala">
-            </div>
-
-            <div class="form-group profil-grid--penuh">
-              <label for="profil_institusi">Institusi / Fakultas</label>
-              <input type="text" id="profil_institusi" name="institusi" placeholder="Nama institusi atau fakultas">
-            </div>
-
-            <div class="form-group profil-grid--penuh">
-              <label for="profil_bio">Bio / Tentang Saya</label>
-              <textarea id="profil_bio" name="bio" rows="5" placeholder="Tuliskan bio singkat..."></textarea>
-            </div>
-          </div>
-
-          <h3 style="margin:1.5rem 0 1rem;">Media Sosial & Akademik</h3>
-          <p class="form-hint" style="margin-bottom:1rem;">Isi kolom yang tersedia. Kolom kosong tidak akan ditampilkan di halaman publik.</p>
-
-          <div class="profil-grid">
-            <div class="form-group">
-              <label for="profil_sosmed_facebook">Facebook</label>
-              <input type="url" id="profil_sosmed_facebook" name="sosmed_facebook" placeholder="https://facebook.com/...">
-            </div>
-            <div class="form-group">
-              <label for="profil_sosmed_instagram">Instagram</label>
-              <input type="url" id="profil_sosmed_instagram" name="sosmed_instagram" placeholder="https://instagram.com/...">
-            </div>
-            <div class="form-group">
-              <label for="profil_sosmed_tiktok">TikTok</label>
-              <input type="url" id="profil_sosmed_tiktok" name="sosmed_tiktok" placeholder="https://tiktok.com/@...">
-            </div>
-            <div class="form-group">
-              <label for="profil_sosmed_linkedin">LinkedIn</label>
-              <input type="url" id="profil_sosmed_linkedin" name="sosmed_linkedin" placeholder="https://linkedin.com/in/...">
-            </div>
-            <div class="form-group">
-              <label for="profil_sosmed_youtube">YouTube</label>
-              <input type="url" id="profil_sosmed_youtube" name="sosmed_youtube" placeholder="https://youtube.com/@...">
-            </div>
-            <div class="form-group">
-              <label for="profil_sosmed_scholar">Google Scholar</label>
-              <input type="url" id="profil_sosmed_scholar" name="sosmed_scholar" placeholder="https://scholar.google.com/...">
-            </div>
-            <div class="form-group profil-grid--penuh">
-              <label for="profil_sosmed_garuda">Garuda (Portal Garuda)</label>
-              <input type="url" id="profil_sosmed_garuda" name="sosmed_garuda" placeholder="https://garuda.kemdikbud.go.id/...">
-            </div>
-          </div>
-
-          <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;">
-            <button type="submit" class="tombol tombol--utama">Simpan Profil</button>
-          </div>
-        </form>
+    <!-- Penelitian -->
+    <section class="seksi container" id="seksi-penelitian" aria-labelledby="judul-penelitian" style="display:none;">
+      <h2 class="seksi__judul" id="judul-penelitian">Penelitian</h2>
+      <div class="kartu-grid" id="konten-penelitian">
+        <div class="status-loading"><div class="spinner"></div>Memuat...</div>
       </div>
+    </section>
 
-      <!-- ========================
-           TAB: PENELITIAN
-           ======================== -->
-      <div id="tab-penelitian" class="admin-panel" role="tabpanel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
-          <h2>Daftar Penelitian</h2>
-          <button class="tombol tombol--utama" onclick="bukaModalTambahPenelitian()">
-            + Tambah Penelitian
-          </button>
-        </div>
-
-        <div class="tabel-wrapper">
-          <table class="tabel-admin">
-            <thead>
-              <tr>
-                <th>Judul</th>
-                <th>Tahun</th>
-                <th>Tautan</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="tabel-penelitian-body">
-              <tr><td colspan="4" class="status-loading"><div class="spinner"></div>Memuat...</td></tr>
-            </tbody>
-          </table>
-        </div>
+    <!-- Pengabdian -->
+    <section class="seksi container" id="seksi-pengabdian" aria-labelledby="judul-pengabdian" style="display:none;">
+      <h2 class="seksi__judul" id="judul-pengabdian">Pengabdian Masyarakat</h2>
+      <div class="kartu-grid" id="konten-pengabdian">
+        <div class="status-loading"><div class="spinner"></div>Memuat...</div>
       </div>
+    </section>
 
-      <!-- ========================
-           TAB: PENGABDIAN
-           ======================== -->
-      <div id="tab-pengabdian" class="admin-panel" role="tabpanel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
-          <h2>Daftar Pengabdian Masyarakat</h2>
-          <button class="tombol tombol--utama" onclick="bukaModalTambahPengabdian()">
-            + Tambah Pengabdian
-          </button>
-        </div>
-
-        <div class="tabel-wrapper">
-          <table class="tabel-admin">
-            <thead>
-              <tr>
-                <th>Judul</th>
-                <th>Tahun</th>
-                <th>Tautan</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="tabel-pengabdian-body">
-              <tr><td colspan="4" class="status-loading"><div class="spinner"></div>Memuat...</td></tr>
-            </tbody>
-          </table>
-        </div>
+    <!-- Galeri -->
+    <section class="seksi container" id="seksi-galeri" aria-labelledby="judul-galeri" style="display:none;">
+      <h2 class="seksi__judul" id="judul-galeri">Galeri</h2>
+      <div class="galeri-grid" id="konten-galeri">
+        <div class="status-loading"><div class="spinner"></div>Memuat...</div>
       </div>
+    </section>
 
-      <!-- ========================
-           TAB: GALERI
-           ======================== -->
-      <div id="tab-galeri" class="admin-panel" role="tabpanel">
-        <h2 style="margin-bottom:1.5rem;">Galeri Foto</h2>
-
-        <!-- Form upload foto baru -->
-        <div class="kartu" style="margin-bottom:2rem;">
-          <h3 style="margin-bottom:1rem;">Tambah Foto Baru</h3>
-          <form id="form-galeri" novalidate>
-            <div class="form-group">
-              <label for="galeri_judul">Judul Foto</label>
-              <input type="text" id="galeri_judul" name="galeri_judul" placeholder="Judul foto" required>
-            </div>
-            <div class="form-group">
-              <label for="galeri_keterangan">Keterangan (opsional)</label>
-              <input type="text" id="galeri_keterangan" name="galeri_keterangan" placeholder="Keterangan singkat">
-            </div>
-            <div class="form-group">
-              <label for="galeri_file">File Foto</label>
-              <input type="file" id="galeri_file" name="galeri_file" accept="image/*" required>
-              <p class="form-hint">Format: JPG, PNG, WebP. Maks. 25 MB.</p>
-            </div>
-            <button type="submit" class="tombol tombol--utama">Unggah Foto</button>
-          </form>
-        </div>
-
-        <!-- Grid galeri yang sudah ada -->
-        <h3 style="margin-bottom:1rem;">Foto Tersimpan</h3>
-        <div id="galeri-admin-konten">
-          <div class="status-loading"><div class="spinner"></div>Memuat galeri...</div>
-        </div>
+    <!-- Dokumen -->
+    <section class="seksi container" id="seksi-dokumen" aria-labelledby="judul-dokumen" style="display:none;">
+      <h2 class="seksi__judul" id="judul-dokumen">Dokumen</h2>
+      <div class="dokumen-list" id="konten-dokumen">
+        <div class="status-loading"><div class="spinner"></div>Memuat...</div>
       </div>
+    </section>
 
-      <!-- ========================
-           TAB: DOKUMEN
-           ======================== -->
-      <div id="tab-dokumen" class="admin-panel" role="tabpanel">
-        <h2 style="margin-bottom:1.5rem;">Dokumen</h2>
-
-        <!-- Form upload dokumen baru -->
-        <div class="kartu" style="margin-bottom:2rem;">
-          <h3 style="margin-bottom:1rem;">Tambah Dokumen Baru</h3>
-          <form id="form-dokumen" novalidate>
-            <div class="form-group">
-              <label for="dokumen_judul">Judul Dokumen</label>
-              <input type="text" id="dokumen_judul" name="dokumen_judul" placeholder="Judul dokumen" required>
-            </div>
-            <div class="form-group">
-              <label for="dokumen_jenis">Jenis Dokumen (opsional)</label>
-              <input type="text" id="dokumen_jenis" name="dokumen_jenis" placeholder="Mis: Sertifikat, SK, Modul">
-            </div>
-            <div class="form-group">
-              <label for="dokumen_file">File PDF</label>
-              <input type="file" id="dokumen_file" name="dokumen_file" accept="application/pdf" required>
-              <p class="form-hint">Format: PDF saja. Maks. 25 MB.</p>
-            </div>
-            <button type="submit" class="tombol tombol--utama">Unggah Dokumen</button>
-          </form>
-        </div>
-
-        <!-- Daftar dokumen tersimpan -->
-        <h3 style="margin-bottom:1rem;">Dokumen Tersimpan</h3>
-        <div id="dokumen-admin-konten">
-          <div class="status-loading"><div class="spinner"></div>Memuat dokumen...</div>
-        </div>
-      </div>
-
-      <!-- ========================
-           TAB: AKUN
-           ======================== -->
-      <div id="tab-akun" class="admin-panel" role="tabpanel">
-        <h2 style="margin-bottom:1.5rem;">Pengaturan Akun Admin</h2>
-
-        <div class="kartu" style="max-width:480px;">
-          <h3 style="margin-bottom:1rem;">Ganti Username &amp; Password</h3>
-          <p style="font-size:0.88rem;color:var(--warna-teks-muda);margin-bottom:1.25rem;">
-            Setelah menyimpan, Anda akan diminta login ulang dengan kredensial baru.
-          </p>
-
-          <form id="form-kredensial" novalidate>
-            <div class="form-group">
-              <label for="username_baru">Username Baru</label>
-              <input type="text" id="username_baru" name="username_baru" autocomplete="username" placeholder="Username baru" required>
-            </div>
-            <div class="form-group">
-              <label for="password_baru">Password Baru</label>
-              <input type="password" id="password_baru" name="password_baru" autocomplete="new-password" placeholder="Minimal 8 karakter" required>
-            </div>
-            <div class="form-group">
-              <label for="password_konfirmasi">Konfirmasi Password Baru</label>
-              <input type="password" id="password_konfirmasi" name="password_konfirmasi" autocomplete="new-password" placeholder="Ulangi password baru" required>
-            </div>
-            <button type="submit" class="tombol tombol--utama">Simpan Kredensial</button>
-          </form>
-        </div>
-      </div>
-
-    </div><!-- .container -->
   </main>
 
-</div><!-- #halaman-dashboard -->
+  <!-- ============================================================
+       KONTAK & FOOTER
+       ============================================================ -->
+  <footer class="kontak-footer" id="kontak" aria-label="Kontak dan informasi">
+    <div class="container">
+      <div class="kontak-inner" id="konten-kontak">
+        <!-- Diisi JS -->
+        <p class="kontak-nama" id="footer-nama"></p>
+        <p class="kontak-institusi" id="footer-institusi"></p>
+        <div class="kontak-email" id="footer-email" style="display:none;"></div>
+        <div class="kontak-sosmed" id="footer-sosmed"></div>
+        <p class="footer-cr" id="footer-cr">Personal Website</p>
+      </div>
+    </div>
+  </footer>
 
-<!-- =====================================================
-     MODAL: Tambah / Edit Penelitian
-     ===================================================== -->
-<div id="modal-penelitian" class="modal-latar tersembunyi" role="dialog" aria-modal="true"
-     aria-labelledby="modal-penelitian-judul">
-  <div class="modal-kotak">
-    <button class="modal-tutup" onclick="tutupModalPenelitian()" aria-label="Tutup">&times;</button>
-    <h2 id="modal-penelitian-judul" class="modal-kotak__judul">Tambah Penelitian</h2>
-
-    <form id="form-penelitian" novalidate>
-      <input type="hidden" id="penelitian_id" name="penelitian_id">
-      <div class="form-group">
-        <label for="penelitian_judul">Judul Penelitian</label>
-        <input type="text" id="penelitian_judul" name="penelitian_judul" placeholder="Judul penelitian" required>
-      </div>
-      <div class="form-group">
-        <label for="penelitian_tahun">Tahun (opsional)</label>
-        <input type="number" id="penelitian_tahun" name="penelitian_tahun"
-               placeholder="Mis: 2024" min="1900" max="2100">
-      </div>
-      <div class="form-group">
-        <label for="penelitian_link">Tautan Dokumen (opsional)</label>
-        <input type="url" id="penelitian_link" name="penelitian_link" placeholder="https://...">
-      </div>
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-        <button type="submit" class="tombol tombol--utama">Simpan</button>
-        <button type="button" class="tombol tombol--sekunder" onclick="tutupModalPenelitian()">Batal</button>
-      </div>
-    </form>
+  <!-- Lightbox (satu instance, konten diganti JS) -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Gambar galeri diperbesar">
+    <button class="lightbox__tutup" id="lightbox-tutup" aria-label="Tutup">&times;</button>
+    <img class="lightbox__gambar" id="lightbox-gambar" src="" alt="">
+    <div class="lightbox__caption" id="lightbox-caption"></div>
   </div>
-</div>
 
-<!-- =====================================================
-     MODAL: Tambah / Edit Pengabdian
-     ===================================================== -->
-<div id="modal-pengabdian" class="modal-latar tersembunyi" role="dialog" aria-modal="true"
-     aria-labelledby="modal-pengabdian-judul">
-  <div class="modal-kotak">
-    <button class="modal-tutup" onclick="tutupModalPengabdian()" aria-label="Tutup">&times;</button>
-    <h2 id="modal-pengabdian-judul" class="modal-kotak__judul">Tambah Pengabdian</h2>
+  <!-- Toast container -->
+  <div id="toast-container" aria-live="polite"></div>
 
-    <form id="form-pengabdian" novalidate>
-      <input type="hidden" id="pengabdian_id" name="pengabdian_id">
-      <div class="form-group">
-        <label for="pengabdian_judul">Judul Kegiatan Pengabdian</label>
-        <input type="text" id="pengabdian_judul" name="pengabdian_judul" placeholder="Judul kegiatan" required>
-      </div>
-      <div class="form-group">
-        <label for="pengabdian_tahun">Tahun (opsional)</label>
-        <input type="number" id="pengabdian_tahun" name="pengabdian_tahun"
-               placeholder="Mis: 2024" min="1900" max="2100">
-      </div>
-      <div class="form-group">
-        <label for="pengabdian_link">Tautan Dokumen (opsional)</label>
-        <input type="url" id="pengabdian_link" name="pengabdian_link" placeholder="https://...">
-      </div>
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-        <button type="submit" class="tombol tombol--utama">Simpan</button>
-        <button type="button" class="tombol tombol--sekunder" onclick="tutupModalPengabdian()">Batal</button>
-      </div>
-    </form>
-  </div>
-</div>
+  <!-- ============================================================
+       JAVASCRIPT INLINE — KHUSUS HALAMAN PUBLIK
+       API_URL bersumber dari js/config.js (sumber tunggal untuk
+       halaman publik maupun panel admin). Untuk mengganti URL
+       backend, cukup edit SATU tempat: js/config.js.
+       ============================================================ -->
+  <script src="js/config.js"></script>
+  <script>
+    'use strict';
 
-<!-- =====================================================
-     MODAL: Edit Foto Galeri (judul & keterangan saja)
-     ===================================================== -->
-<div id="modal-galeri-edit" class="modal-latar tersembunyi" role="dialog" aria-modal="true"
-     aria-labelledby="modal-galeri-edit-judul-header">
-  <div class="modal-kotak">
-    <button class="modal-tutup" onclick="tutupModalEditGaleri()" aria-label="Tutup">&times;</button>
-    <h2 id="modal-galeri-edit-judul-header" class="modal-kotak__judul">Edit Foto Galeri</h2>
-    <p style="font-size:0.85rem;color:var(--warna-teks-muda);margin-bottom:1rem;">
-      Hanya judul dan keterangan yang dapat diubah. File gambar tidak diubah.
-    </p>
-    <form id="form-galeri-edit" novalidate>
-      <input type="hidden" id="galeri_edit_id" name="galeri_edit_id">
-      <div class="form-group">
-        <label for="galeri_edit_judul">Judul Foto</label>
-        <input type="text" id="galeri_edit_judul" name="galeri_edit_judul" placeholder="Judul foto" required>
-      </div>
-      <div class="form-group">
-        <label for="galeri_edit_keterangan">Keterangan (opsional)</label>
-        <input type="text" id="galeri_edit_keterangan" name="galeri_edit_keterangan" placeholder="Keterangan singkat">
-      </div>
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-        <button type="submit" class="tombol tombol--utama">Simpan</button>
-        <button type="button" class="tombol tombol--sekunder" onclick="tutupModalEditGaleri()">Batal</button>
-      </div>
-    </form>
-  </div>
-</div>
+    /* =====================================================
+       KONFIGURASI API
+       =====================================================
+       API_URL diambil dari js/config.js (sumber tunggal).
+       Ubah URL backend HANYA di file itu.
+       Cara mendapatkan URL:
+         1. Buka project GAS
+         2. Klik Deploy → New deployment / Manage deployments
+         3. Pilih Web app, Execute as: Me, Access: Anyone
+         4. Salin URL yang muncul dan tempel di js/config.js.
+    */
+    // API_URL diambil dari js/config.js (sumber tunggal). Ubah URL backend HANYA di file itu.
 
-<!-- Container toast -->
-<div id="toast-container"></div>
+    // Penanda placeholder — diganti pengguna setelah deploy
+    const API_URL_PLACEHOLDER = 'GANTI_DENGAN_URL_WEB_APP_GAS';
 
-<!-- Script -->
-<script src="js/config.js"></script>
-<script src="js/admin.js"></script>
+    /* =====================================================
+       DEFINISI SOSIAL MEDIA
+       ===================================================== */
+    const SOSMED_DEF = [
+      { key: 'sosmed_facebook',  label: 'Facebook',       badge: 'FB' },
+      { key: 'sosmed_instagram', label: 'Instagram',      badge: 'IG' },
+      { key: 'sosmed_tiktok',    label: 'TikTok',         badge: 'TT' },
+      { key: 'sosmed_linkedin',  label: 'LinkedIn',       badge: 'in' },
+      { key: 'sosmed_youtube',   label: 'YouTube',        badge: 'YT' },
+      { key: 'sosmed_scholar',   label: 'Google Scholar', badge: 'GS' },
+      { key: 'sosmed_garuda',    label: 'Garuda',         badge: 'Garuda' }
+    ];
+
+    /* =====================================================
+       PENYIMPAN DATA CV (scope global skrip ini)
+       Diisi oleh init() setelah data berhasil dimuat.
+       generateCV() membacanya tanpa fetch ulang.
+       ===================================================== */
+    let _cvData = null; // { profil, penelitian, pengabdian, dokumen }
+
+    /* =====================================================
+       UTILITAS
+       ===================================================== */
+
+    /** Escape HTML untuk mencegah XSS. */
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /** Format ukuran file ke KB/MB. */
+    function formatUkuran(bytes) {
+      if (!bytes || isNaN(bytes)) return '';
+      const n = Number(bytes);
+      if (n < 1024) return n + ' B';
+      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+      return (n / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    /** Tampilkan toast notifikasi. */
+    function tampilToast(pesan, tipe = 'info', durasi = 4500) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const el = document.createElement('div');
+      el.className = `toast toast--${tipe}`;
+      el.textContent = pesan;
+      container.appendChild(el);
+      setTimeout(() => { if (el.parentNode) el.remove(); }, durasi);
+    }
+
+    /* =====================================================
+       POLA CORS GAS
+       =====================================================
+       POST dengan Content-Type: text/plain;charset=utf-8 dan
+       body berupa JSON.stringify(payload). Pola ini menghindari
+       preflight OPTIONS yang tidak didukung GAS.
+       Token TIDAK diperlukan untuk aksi getPublic (publik).
+       WAJIB DIUJI MANUAL dari URL yang dihosting (GitHub Pages
+       atau hosting lain) — tidak bisa dites dari file:// lokal.
+    */
+    async function apiPublik() {
+      const body = JSON.stringify({ action: 'getPublic' });
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      return res.json();
+    }
+
+    /* =====================================================
+       NAVBAR — solid saat scroll
+       ===================================================== */
+    (function initNavbar() {
+      const nav = document.getElementById('navbar');
+      if (!nav) return;
+      function updateNavbar() {
+        if (window.scrollY > 60) {
+          nav.classList.add('navbar--solid');
+        } else {
+          nav.classList.remove('navbar--solid');
+        }
+      }
+      window.addEventListener('scroll', updateNavbar, { passive: true });
+      updateNavbar();
+    })();
+
+    /* =====================================================
+       HAMBURGER — toggle menu mobile
+       ===================================================== */
+    (function initHamburger() {
+      var toggle = document.getElementById('navbar-toggle');
+      var links  = document.getElementById('navbar-links');
+      if (!toggle || !links) return;
+
+      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) {
+        /* Tanpa transisi: hapus class transisi sebelum toggle */
+        links.style.transition = 'none';
+      }
+
+      function bukaMenu() {
+        links.classList.add('navbar__links--terbuka');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'Tutup menu');
+      }
+
+      function tutupMenu() {
+        links.classList.remove('navbar__links--terbuka');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Buka menu');
+      }
+
+      function menuTerbuka() {
+        return links.classList.contains('navbar__links--terbuka');
+      }
+
+      /* Klik hamburger: toggle buka/tutup */
+      toggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (menuTerbuka()) {
+          tutupMenu();
+        } else {
+          bukaMenu();
+        }
+      });
+
+      /* Klik di luar navbar: tutup menu */
+      document.addEventListener('click', function(e) {
+        if (!menuTerbuka()) return;
+        var nav = document.getElementById('navbar');
+        if (nav && !nav.contains(e.target)) {
+          tutupMenu();
+        }
+      });
+
+      /* Tekan Escape: tutup menu */
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && menuTerbuka()) {
+          tutupMenu();
+          toggle.focus();
+        }
+      });
+
+      /* Klik salah satu link menu: tutup menu, biarkan smooth-scroll handler bekerja */
+      links.addEventListener('click', function(e) {
+        var link = e.target.closest('a.navbar__link');
+        if (link && menuTerbuka()) {
+          tutupMenu();
+        }
+      });
+
+      /* Saat resize ke desktop (>768px): pastikan menu tertutup & aria bersih */
+      var mq = window.matchMedia('(max-width: 768px)');
+      function onMqChange(ev) {
+        if (!ev.matches) {
+          /* Kembali ke desktop — bersihkan state mobile */
+          tutupMenu();
+        }
+      }
+      /* addEventListener dengan EventListener object lebih luas didukung */
+      if (typeof mq.addEventListener === 'function') {
+        mq.addEventListener('change', onMqChange);
+      } else if (typeof mq.addListener === 'function') {
+        /* fallback untuk browser lama */
+        mq.addListener(onMqChange);
+      }
+    })();
+
+    /* =====================================================
+       SMOOTH SCROLL untuk tautan anchor di navbar
+       ===================================================== */
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a[href^="#"]');
+      if (!link) return;
+      var href = link.getAttribute('href');
+      if (!href || href === '#') {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    /* =====================================================
+       LIGHTBOX GALERI
+       ===================================================== */
+    (function initLightbox() {
+      const lb     = document.getElementById('lightbox');
+      const lbImg  = document.getElementById('lightbox-gambar');
+      const lbCap  = document.getElementById('lightbox-caption');
+      const lbTutup = document.getElementById('lightbox-tutup');
+      if (!lb) return;
+
+      function bukaLightbox(src, judul) {
+        lbImg.src = src;
+        lbImg.alt = judul || 'Foto galeri';
+        lbCap.textContent = judul || '';
+        lbCap.style.display = judul ? '' : 'none';
+        lb.classList.add('aktif');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function tutupLightbox() {
+        lb.classList.remove('aktif');
+        document.body.style.overflow = '';
+        // Tunda reset src agar transisi selesai
+        setTimeout(() => { lbImg.src = ''; }, 300);
+      }
+
+      lbTutup.addEventListener('click', tutupLightbox);
+      lb.addEventListener('click', function(e) {
+        if (e.target === lb) tutupLightbox();
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lb.classList.contains('aktif')) tutupLightbox();
+      });
+
+      // Ekspos fungsi buka ke scope global agar render galeri bisa memanggilnya
+      window.bukaLightbox = bukaLightbox;
+    })();
+
+    /* =====================================================
+       INTERSECTION OBSERVER — reveal animasi saat scroll
+       =====================================================
+       Kelas .akan-reveal hanya ditambahkan lewat JS ini.
+       Bila JS tidak jalan, elemen tetap terlihat (opacity default 1).
+       prefers-reduced-motion: observer tidak ditambahkan,
+       kelas tidak ditambahkan — elemen selalu terlihat.
+    */
+    let observer = null;
+
+    function initReveal() {
+      // Jangan aktifkan animasi bila prefers-reduced-motion
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) return;
+
+      observer = new IntersectionObserver(
+        function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('sudah-reveal');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+      );
+    }
+
+    /** Daftarkan elemen ke observer reveal. */
+    function daftarReveal(el) {
+      if (!observer || !el) return;
+      el.classList.add('akan-reveal');
+      observer.observe(el);
+    }
+
+    /* =====================================================
+       RENDER: HERO
+       ===================================================== */
+    function renderHero(profil) {
+      const el = document.getElementById('hero-inner');
+      if (!el) return;
+
+      const namaLengkap    = profil.nama_lengkap   || '';
+      const gelarDepan     = profil.gelar_depan    || '';
+      const gelarBelakang  = profil.gelar_belakang || '';
+      const namaGelar      = [gelarDepan, namaLengkap, gelarBelakang].filter(Boolean).join(' ') || 'Personal Website';
+      const profesi        = profil.profesi        || '';
+      const jabatan        = profil.jabatan        || '';
+      const institusi      = profil.institusi      || '';
+      const nuptk          = profil.nuptk          || '';
+      const emailPublik    = profil.email_publik   || '';
+      const fotoId         = profil.foto_profil_id || '';
+
+      // Perbarui brand navbar dengan nama/inisial
+      const brand = document.getElementById('navbar-brand');
+      if (brand && namaLengkap) {
+        // Tampilkan inisial atau nama pendek (maks. 2 kata)
+        const kata = namaLengkap.split(' ');
+        brand.textContent = kata.slice(0, 2).join(' ');
+      }
+
+      // Perbarui judul tab dengan nama lengkap
+      if (namaLengkap) {
+        document.title = namaLengkap + ' — Personal Website';
+      }
+
+      // Perbarui teks footer copyright
+      const footerCr = document.getElementById('footer-cr');
+      if (footerCr) {
+        const tahun = new Date().getFullYear();
+        if (namaLengkap) {
+          footerCr.textContent = '© ' + tahun + ' ' + namaLengkap + ' · Personal Website';
+        } else {
+          footerCr.textContent = '© ' + tahun + ' Personal Website';
+        }
+      }
+
+      // HTML foto profil
+      // URL thumbnail Drive: parameter sz=w1000 sesuai kontrak data (public.js pakai w400,
+      // di sini diperbesar karena foto lebih besar di hero).
+      // WAJIB DIUJI MANUAL: aksesibilitas foto Drive publik.
+      let fotoHtml = '';
+      if (fotoId) {
+        const thumbUrl = `https://drive.google.com/thumbnail?id=${encodeURIComponent(fotoId)}&sz=w1000`;
+        fotoHtml = `
+          <div class="hero__foto-wrap">
+            <div class="hero__foto-ring" aria-hidden="true"></div>
+            <img
+              class="hero__foto"
+              src="${thumbUrl}"
+              alt="Foto ${escHtml(namaLengkap)}"
+              loading="lazy"
+              onerror="this.style.display='none';var fp=this.parentNode.querySelector('.foto-fallback');if(fp)fp.style.display='flex';"
+            ><div class="hero__foto-placeholder foto-fallback" style="display:none;" aria-hidden="true">&#128100;</div>
+          </div>`;
+      } else {
+        fotoHtml = `
+          <div class="hero__foto-wrap">
+            <div class="hero__foto-placeholder" aria-hidden="true">&#128100;</div>
+          </div>`;
+      }
+
+      // Chip sosial media
+      const sosmedHtml = SOSMED_DEF
+        .filter(s => profil[s.key])
+        .map(s => `<a href="${escHtml(profil[s.key])}" target="_blank" rel="noopener noreferrer"
+              class="sosmed-chip" title="${escHtml(s.label)}">
+              <span class="sosmed-chip__badge" aria-hidden="true">${escHtml(s.badge)}</span>
+              <span>${escHtml(s.label)}</span>
+            </a>`)
+        .join('');
+
+      // Email
+      const emailHtml = emailPublik
+        ? `<p class="hero__email">
+             <a href="mailto:${escHtml(emailPublik)}">${escHtml(emailPublik)}</a>
+           </p>`
+        : '';
+
+      // Blok profesi + jabatan
+      const profesiTeks = [profesi, jabatan].filter(Boolean).join(' · ');
+
+      el.innerHTML = `
+        <div class="hero__foto-col">${fotoHtml}</div>
+        <div class="hero__info">
+          ${profesi ? `<span class="hero__label">${escHtml(profesi)}</span>` : ''}
+          <h1 class="hero__nama">${escHtml(namaGelar)}</h1>
+          ${profesiTeks ? `<p class="hero__profesi">${escHtml(profesiTeks)}</p>` : ''}
+          ${institusi   ? `<p class="hero__institusi">&#x1F3EB; ${escHtml(institusi)}</p>` : ''}
+          ${nuptk       ? `<p class="hero__nuptk">NUPTK: ${escHtml(nuptk)}</p>` : ''}
+          ${emailHtml}
+          ${sosmedHtml  ? `<div class="sosmed-bar" role="list" aria-label="Media sosial">${sosmedHtml}</div>` : ''}
+          <div class="hero__cta">
+            ${emailPublik
+              ? `<a href="mailto:${escHtml(emailPublik)}" class="cta-btn cta-btn--utama">
+                   <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                     <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                   </svg>
+                   Hubungi
+                 </a>`
+              : `<a href="#kontak" class="cta-btn cta-btn--utama">
+                   Kontak
+                 </a>`}
+            <a href="#seksi-penelitian" class="cta-btn cta-btn--outline">
+              Lihat Penelitian
+            </a>
+            <button
+              id="btn-unduh-cv"
+              type="button"
+              class="cta-btn cta-btn--outline"
+              onclick="generateCV()"
+              aria-label="Unduh CV dalam format PDF"
+              style="border-color:rgba(255,255,255,0.85);display:inline-flex;align-items:center;gap:0.4rem;"
+            >
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" style="flex-shrink:0;">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+              Unduh CV
+            </button>
+          </div>
+        </div>`;
+    }
+
+    /* =====================================================
+       RENDER: BIO / TENTANG
+       ===================================================== */
+    function renderBio(profil) {
+      const seksi = document.getElementById('seksi-tentang');
+      const el    = document.getElementById('konten-bio');
+      if (!seksi || !el) return;
+      const bio = (profil.bio || '').trim();
+      if (!bio) { seksi.style.display = 'none'; return; }
+      seksi.style.display = '';
+      el.textContent = bio;
+      daftarReveal(seksi);
+    }
+
+    /* =====================================================
+       RENDER: KARTU PENELITIAN / PENGABDIAN
+       ===================================================== */
+    function renderKartuKarya(elId, seksiId, daftar) {
+      const el    = document.getElementById(elId);
+      const seksi = document.getElementById(seksiId);
+      if (!el) return;
+      if (!daftar || daftar.length === 0) {
+        if (seksi) seksi.style.display = 'none';
+        return;
+      }
+      if (seksi) seksi.style.display = '';
+      el.innerHTML = daftar.map(item => `
+        <div class="kartu">
+          ${item.tahun ? `<span class="kartu__tahun">${escHtml(String(item.tahun))}</span>` : ''}
+          <div class="kartu__judul">${escHtml(item.judul || '—')}</div>
+          ${item.link
+            ? `<a class="kartu__tautan" href="${escHtml(item.link)}" target="_blank" rel="noopener noreferrer">
+                 <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                   <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                   <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                 </svg>
+                 Lihat
+               </a>`
+            : ''}
+        </div>`).join('');
+
+      // Daftarkan setiap kartu ke observer reveal (stagger via delay)
+      el.querySelectorAll('.kartu').forEach((kartu, i) => {
+        kartu.style.transitionDelay = `${i * 60}ms`;
+        daftarReveal(kartu);
+      });
+      if (seksi) daftarReveal(seksi.querySelector('.seksi__judul'));
+    }
+
+    function renderPenelitian(daftar) {
+      renderKartuKarya('konten-penelitian', 'seksi-penelitian', daftar);
+    }
+
+    function renderPengabdian(daftar) {
+      renderKartuKarya('konten-pengabdian', 'seksi-pengabdian', daftar);
+    }
+
+    /* =====================================================
+       RENDER: GALERI
+       ===================================================== */
+    function renderGaleri(daftar) {
+      const el    = document.getElementById('konten-galeri');
+      const seksi = document.getElementById('seksi-galeri');
+      if (!el) return;
+      if (!daftar || daftar.length === 0) {
+        if (seksi) seksi.style.display = 'none';
+        return;
+      }
+      if (seksi) seksi.style.display = '';
+
+      // URL thumbnail: sz=w1000 — ASUMSI: file Drive sudah diatur publik.
+      // WAJIB DIUJI MANUAL.
+      el.innerHTML = daftar.map(item => {
+        const thumbUrl = `https://drive.google.com/thumbnail?id=${encodeURIComponent(item.file_id)}&sz=w1000`;
+        const judul    = escHtml(item.judul || '');
+        const ket      = item.keterangan ? escHtml(item.keterangan) : '';
+        return `
+          <div class="galeri-item"
+               role="button"
+               tabindex="0"
+               aria-label="Perbesar gambar: ${judul}"
+               data-src="${thumbUrl}"
+               data-judul="${judul}">
+            <div class="galeri-item__gambar-wrap">
+              <img
+                class="galeri-item__gambar"
+                src="${thumbUrl}"
+                alt="${judul || 'Foto galeri'}"
+                loading="lazy"
+                onerror="this.src='';this.alt='Gambar tidak tersedia';"
+              >
+              <div class="galeri-item__overlay" aria-hidden="true">
+                <div class="galeri-item__overlay-teks">${judul}</div>
+              </div>
+            </div>
+            ${judul || ket ? `
+            <div class="galeri-item__info">
+              ${judul ? `<div class="galeri-item__judul">${judul}</div>` : ''}
+              ${ket   ? `<div class="galeri-item__keterangan">${ket}</div>` : ''}
+            </div>` : ''}
+          </div>`;
+      }).join('');
+
+      // Event klik lightbox
+      el.addEventListener('click', function(e) {
+        const item = e.target.closest('.galeri-item[data-src]');
+        if (item && window.bukaLightbox) {
+          window.bukaLightbox(item.dataset.src, item.dataset.judul);
+        }
+      });
+
+      // Aksesibilitas: Enter/Space pada item galeri
+      el.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          const item = e.target.closest('.galeri-item[data-src]');
+          if (item && window.bukaLightbox) {
+            e.preventDefault();
+            window.bukaLightbox(item.dataset.src, item.dataset.judul);
+          }
+        }
+      });
+
+      // Reveal per item
+      el.querySelectorAll('.galeri-item').forEach((item, i) => {
+        item.style.transitionDelay = `${i * 50}ms`;
+        daftarReveal(item);
+      });
+      if (seksi) daftarReveal(seksi.querySelector('.seksi__judul'));
+    }
+
+    /* =====================================================
+       RENDER: DOKUMEN
+       ===================================================== */
+    function renderDokumen(daftar) {
+      const el    = document.getElementById('konten-dokumen');
+      const seksi = document.getElementById('seksi-dokumen');
+      if (!el) return;
+      if (!daftar || daftar.length === 0) {
+        if (seksi) seksi.style.display = 'none';
+        return;
+      }
+      if (seksi) seksi.style.display = '';
+
+      // URL unduh dokumen Drive — pola sama dengan public.js lama
+      el.innerHTML = daftar.map(item => {
+        const unduhUrl = `https://drive.google.com/uc?export=download&id=${encodeURIComponent(item.file_id)}`;
+        const ukuran   = item.ukuran ? formatUkuran(item.ukuran) : '';
+        const meta     = [item.jenis, item.nama_file, ukuran].filter(Boolean).join(' · ');
+        return `
+          <div class="dokumen-item">
+            <div class="dokumen-item__ikon" aria-hidden="true">&#x1F4C4;</div>
+            <div class="dokumen-item__info">
+              <div class="dokumen-item__judul">${escHtml(item.judul || '—')}</div>
+              ${meta ? `<div class="dokumen-item__meta">${escHtml(meta)}</div>` : ''}
+            </div>
+            <a
+              class="dokumen-item__unduh"
+              href="${unduhUrl}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Unduh ${escHtml(item.judul || 'dokumen')}"
+            >
+              <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+              Unduh
+            </a>
+          </div>`;
+      }).join('');
+
+      el.querySelectorAll('.dokumen-item').forEach((item, i) => {
+        item.style.transitionDelay = `${i * 55}ms`;
+        daftarReveal(item);
+      });
+      if (seksi) daftarReveal(seksi.querySelector('.seksi__judul'));
+    }
+
+    /* =====================================================
+       RENDER: FOOTER / KONTAK
+       ===================================================== */
+    function renderKontak(profil) {
+      const elNama      = document.getElementById('footer-nama');
+      const elInstitusi = document.getElementById('footer-institusi');
+      const elEmail     = document.getElementById('footer-email');
+      const elSosmed    = document.getElementById('footer-sosmed');
+
+      const namaLengkap   = profil.nama_lengkap   || '';
+      const gelarDepan    = profil.gelar_depan    || '';
+      const gelarBelakang = profil.gelar_belakang || '';
+      const namaGelar     = [gelarDepan, namaLengkap, gelarBelakang].filter(Boolean).join(' ');
+
+      if (elNama)      elNama.textContent      = namaGelar || '';
+      if (elInstitusi) elInstitusi.textContent = profil.institusi || '';
+
+      if (elEmail) {
+        const emailPublik = profil.email_publik || '';
+        if (emailPublik) {
+          elEmail.style.display = '';
+          elEmail.innerHTML = `<a href="mailto:${escHtml(emailPublik)}">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+            </svg>
+            ${escHtml(emailPublik)}
+          </a>`;
+        } else {
+          elEmail.style.display = 'none';
+        }
+      }
+
+      if (elSosmed) {
+        const chipsHtml = SOSMED_DEF
+          .filter(s => profil[s.key])
+          .map(s => `<a href="${escHtml(profil[s.key])}" target="_blank" rel="noopener noreferrer"
+                class="kontak-sosmed-chip" title="${escHtml(s.label)}">
+                <span aria-hidden="true">${escHtml(s.badge)}</span>
+                <span>${escHtml(s.label)}</span>
+              </a>`)
+          .join('');
+        elSosmed.innerHTML = chipsHtml;
+      }
+    }
+
+    /* =====================================================
+       TAMPIL PESAN ERROR DI HERO
+       ===================================================== */
+    function tampilErrorHero(pesan) {
+      const el = document.getElementById('hero-inner');
+      if (!el) return;
+      el.innerHTML = `
+        <div style="
+          background:rgba(255,255,255,.15);
+          border:1.5px solid rgba(255,255,255,.3);
+          border-radius:14px;
+          padding:1.75rem 2rem;
+          color:white;
+          max-width:520px;
+        ">
+          <strong style="font-family:var(--font-judul);font-size:1.05rem;">Tidak dapat memuat profil</strong>
+          <p style="margin-top:.5rem;font-size:.9rem;opacity:.85;">${escHtml(pesan)}</p>
+        </div>`;
+    }
+
+    /* =====================================================
+       GENERATE CV — PDF CLIENT-SIDE via pdfmake
+       =====================================================
+       Membaca _cvData yang sudah diisi oleh init().
+       Tidak ada fetch ulang, tidak ada gambar/foto di-embed
+       (menghindari masalah CORS tainted-canvas).
+       Galeri DIKECUALIKAN sepenuhnya.
+       WAJIB DIUJI DI BROWSER: rendering font Roboto pdfmake,
+       multi-halaman, dan download blob.
+    */
+    function generateCV() {
+      // --- Cek library pdfmake ---
+      if (typeof pdfMake === 'undefined') {
+        tampilToast('Gagal memuat library PDF. Periksa koneksi internet dan muat ulang halaman.', 'gagal', 6000);
+        return;
+      }
+
+      // --- Cek data tersedia ---
+      if (!_cvData) {
+        tampilToast('Data CV belum tersedia. Tunggu hingga profil selesai dimuat.', 'gagal');
+        return;
+      }
+
+      const { profil = {}, penelitian = [], pengabdian = [], dokumen = [] } = _cvData;
+
+      // Penyusunan nama+gelar — SAMA persis dengan pola renderHero & renderKontak
+      const namaLengkap   = profil.nama_lengkap   || '';
+      const gelarDepan    = profil.gelar_depan    || '';
+      const gelarBelakang = profil.gelar_belakang || '';
+      const namaGelar     = [gelarDepan, namaLengkap, gelarBelakang].filter(Boolean).join(' ');
+
+      // Cek minimal: nama atau ada konten penelitian/pengabdian
+      const adaKonten = Boolean(namaGelar) || penelitian.length > 0 || pengabdian.length > 0;
+      if (!adaKonten) {
+        tampilToast('Data CV belum tersedia. Profil masih kosong.', 'gagal');
+        return;
+      }
+
+      // --- Indikator loading pada tombol ---
+      const btnCV = document.getElementById('btn-unduh-cv');
+
+      // Fungsi reset idempoten — aman dipanggil berkali-kali tanpa glitch
+      let sudahReset = false;
+      function resetTombolCV() {
+        if (sudahReset) return;
+        sudahReset = true;
+        if (btnCV) {
+          btnCV.classList.remove('cta-btn--cv-loading');
+          btnCV.innerHTML = ikonUnduhCV() + ' Unduh CV';
+        }
+      }
+
+      if (btnCV) {
+        btnCV.classList.add('cta-btn--cv-loading');
+        btnCV.innerHTML = 'Menyiapkan...';
+      }
+
+      // --- Warna tema navy + teal ---
+      const NAVY_UTAMA  = '#1E3A5F';
+      const TEAL_AKSEN  = '#0F766E';
+      const EMAS_AKSEN  = '#C9A227';
+      const ABU_MUDA    = '#5A6B7B';
+
+      // --- Helper: baris garis pemisah seksi ---
+      function garisSeksi() {
+        return {
+          canvas: [{
+            type: 'line',
+            x1: 0, y1: 0, x2: 515, y2: 0,
+            lineWidth: 1.5,
+            lineColor: TEAL_AKSEN
+          }],
+          margin: [0, 0, 0, 8]
+        };
+      }
+
+      // --- Helper: judul seksi ---
+      function judulSeksi(teks) {
+        return [
+          {
+            text: teks,
+            style: 'judulSeksi',
+            margin: [0, 18, 0, 4]
+          },
+          garisSeksi()
+        ];
+      }
+
+      // --- Konten dokumen: definisi isi PDF ---
+      const content = [];
+
+      // == HEADER: nama + gelar ==
+      content.push({
+        text: namaGelar || 'Personal Website',
+        style: 'namaHeader',
+        margin: [0, 0, 0, 4]
+      });
+
+      // == Profesi & jabatan ==
+      const profesiTeks = [profil.profesi, profil.jabatan].filter(Boolean).join(' · ');
+      if (profesiTeks) {
+        content.push({ text: profesiTeks, style: 'profesiHeader', margin: [0, 0, 0, 2] });
+      }
+
+      // == Institusi ==
+      if (profil.institusi) {
+        content.push({ text: profil.institusi, style: 'institusiHeader', margin: [0, 0, 0, 2] });
+      }
+
+      // == Garis emas tipis langsung di bawah nama (aksen dekoratif, bukan teks) ==
+      content.push({
+        canvas: [{
+          type: 'line',
+          x1: 0, y1: 0, x2: 515, y2: 0,
+          lineWidth: 2,
+          lineColor: EMAS_AKSEN
+        }],
+        margin: [0, 6, 0, 6]
+      });
+
+      // == Baris kontak ringkas (email · NUPTK) ==
+      const kontakBaris = [];
+      if (profil.email_publik) kontakBaris.push('Email: ' + profil.email_publik);
+      if (profil.nuptk)        kontakBaris.push('NUPTK: ' + profil.nuptk);
+      if (kontakBaris.length > 0) {
+        content.push({
+          text: kontakBaris.join('   ·   '),
+          style: 'kontakBaris',
+          margin: [0, 0, 0, 4]
+        });
+      }
+
+      // == Tautan sosmed / akademik ==
+      const sosmedTerisi = SOSMED_DEF.filter(s => profil[s.key]);
+      if (sosmedTerisi.length > 0) {
+        const barisSosmed = sosmedTerisi.map(s => ({
+          text: s.label + ': ' + profil[s.key],
+          style: 'sosmedBaris',
+          margin: [0, 1, 0, 0]
+        }));
+        content.push(...barisSosmed);
+      }
+
+      // == Ringkasan / Bio ==
+      const bio = (profil.bio || '').trim();
+      if (bio) {
+        content.push(...judulSeksi('Ringkasan'));
+        content.push({ text: bio, style: 'isiTeks', margin: [0, 0, 0, 4] });
+      }
+
+      // == Penelitian ==
+      if (penelitian.length > 0) {
+        content.push(...judulSeksi('Penelitian'));
+        penelitian.forEach(function(item) {
+          const baris = [];
+          baris.push({ text: item.judul || '—', style: 'itemJudul', margin: [0, 0, 0, 2] });
+          const meta = [];
+          if (item.tahun) meta.push('Tahun: ' + item.tahun);
+          if (item.link)  meta.push('Tautan: ' + item.link);
+          if (meta.length > 0) {
+            baris.push({ text: meta.join('   '), style: 'itemMeta', margin: [0, 0, 0, 1] });
+          }
+          baris.push({ text: '', margin: [0, 0, 0, 6] }); // spasi antar item
+          content.push(...baris);
+        });
+      }
+
+      // == Pengabdian Masyarakat ==
+      if (pengabdian.length > 0) {
+        content.push(...judulSeksi('Pengabdian Masyarakat'));
+        pengabdian.forEach(function(item) {
+          const baris = [];
+          baris.push({ text: item.judul || '—', style: 'itemJudul', margin: [0, 0, 0, 2] });
+          const meta = [];
+          if (item.tahun) meta.push('Tahun: ' + item.tahun);
+          if (item.link)  meta.push('Tautan: ' + item.link);
+          if (meta.length > 0) {
+            baris.push({ text: meta.join('   '), style: 'itemMeta', margin: [0, 0, 0, 1] });
+          }
+          baris.push({ text: '', margin: [0, 0, 0, 6] });
+          content.push(...baris);
+        });
+      }
+
+      // == Dokumen ==
+      if (dokumen.length > 0) {
+        content.push(...judulSeksi('Dokumen'));
+        dokumen.forEach(function(item) {
+          const baris = [];
+          baris.push({ text: item.judul || '—', style: 'itemJudul', margin: [0, 0, 0, 2] });
+          if (item.jenis) {
+            baris.push({ text: 'Jenis: ' + item.jenis, style: 'itemMeta', margin: [0, 0, 0, 1] });
+          }
+          baris.push({ text: '', margin: [0, 0, 0, 6] });
+          content.push(...baris);
+        });
+      }
+
+      // == Footer kecil (tanggal unduh) ==
+      const tglUnduh = new Date().toLocaleDateString('id-ID', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      });
+      content.push({
+        text: 'Diunduh dari profil online — ' + tglUnduh,
+        style: 'footerTeks',
+        margin: [0, 28, 0, 0],
+        alignment: 'center'
+      });
+
+      // --- Definisi dokumen pdfmake ---
+      const docDef = {
+        pageSize: 'A4',
+        pageMargins: [50, 50, 50, 50],
+        content: content,
+        styles: {
+          namaHeader: {
+            fontSize: 22,
+            bold: true,
+            color: NAVY_UTAMA,
+            font: 'Roboto'
+          },
+          profesiHeader: {
+            fontSize: 12,
+            color: '#1A2433',
+            font: 'Roboto'
+          },
+          institusiHeader: {
+            fontSize: 11,
+            color: ABU_MUDA,
+            font: 'Roboto'
+          },
+          kontakBaris: {
+            fontSize: 10,
+            color: '#1A2433',
+            font: 'Roboto'
+          },
+          sosmedBaris: {
+            fontSize: 9.5,
+            color: NAVY_UTAMA,
+            font: 'Roboto'
+          },
+          judulSeksi: {
+            fontSize: 13,
+            bold: true,
+            color: NAVY_UTAMA,
+            font: 'Roboto'
+          },
+          isiTeks: {
+            fontSize: 10.5,
+            color: '#1A2433',
+            lineHeight: 1.5,
+            font: 'Roboto'
+          },
+          itemJudul: {
+            fontSize: 10.5,
+            bold: true,
+            color: '#1A2433',
+            font: 'Roboto'
+          },
+          itemMeta: {
+            fontSize: 9.5,
+            color: ABU_MUDA,
+            font: 'Roboto'
+          },
+          footerTeks: {
+            fontSize: 8.5,
+            color: '#8A9BAD',
+            font: 'Roboto',
+            italics: true
+          }
+        },
+        defaultStyle: {
+          font: 'Roboto',
+          fontSize: 10.5,
+          color: '#1A2433',
+          lineHeight: 1.4
+        }
+      };
+
+      // --- Nama file: bersihkan karakter ilegal nama file ---
+      function bersihkanNamaFile(nama) {
+        // Hapus karakter yang tidak aman untuk nama file di semua OS
+        return nama.replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim();
+      }
+      const namaFile = namaLengkap
+        ? 'CV - ' + bersihkanNamaFile(namaLengkap) + '.pdf'
+        : 'CV.pdf';
+
+      // --- Buat & unduh PDF (WAJIB DIUJI DI BROWSER) ---
+      try {
+        pdfMake.createPdf(docDef).download(namaFile, function() {
+          // Callback dipanggil setelah download dimulai (ASUMSI: API pdfmake 0.2).
+          // Tidak dijamin terpanggil di semua browser/mobile — ada fallback setTimeout di bawah.
+          resetTombolCV();
+        });
+        // Fallback: bila callback .download() tidak terpanggil (mis. mobile, kegagalan font
+        // diam-diam), tombol tetap pulih setelah 8 detik.
+        setTimeout(resetTombolCV, 8000);
+      } catch (errPdf) {
+        tampilToast('Gagal membuat PDF: ' + (errPdf.message || 'Kesalahan tidak diketahui.'), 'gagal', 6000);
+        resetTombolCV();
+        console.error('[generateCV] Error pdfmake:', errPdf);
+      }
+    }
+
+    /** SVG ikon unduh — dipakai di tombol CV. */
+    function ikonUnduhCV() {
+      return `<svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" style="flex-shrink:0;">
+        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+      </svg>`;
+    }
+
+    /* =====================================================
+       INISIALISASI UTAMA
+       ===================================================== */
+    async function init() {
+      // Inisialisasi IntersectionObserver
+      initReveal();
+
+      // Cek placeholder API_URL
+      if (!API_URL || API_URL === API_URL_PLACEHOLDER) {
+        tampilErrorHero(
+          'URL API belum dikonfigurasi. ' +
+          'Isi konstanta API_URL di file js/config.js dengan URL Web App Google Apps Script Anda.'
+        );
+        return;
+      }
+
+      try {
+        // Ambil data publik dari GAS
+        // Pola CORS: POST, Content-Type text/plain, body JSON.
+        // Token tidak diperlukan untuk getPublic.
+        const hasil = await apiPublik();
+
+        if (!hasil.ok) {
+          tampilToast('Gagal memuat data: ' + (hasil.pesan || 'Kesalahan tidak diketahui.'), 'gagal');
+          tampilErrorHero(hasil.pesan || 'Kesalahan server.');
+          return;
+        }
+
+        const { profil = {}, penelitian = [], pengabdian = [], galeri = [], dokumen = [] } = hasil.data || {};
+
+        // Simpan data ke scope luar agar generateCV() dapat mengaksesnya tanpa fetch ulang
+        _cvData = { profil, penelitian, pengabdian, dokumen };
+
+        renderHero(profil);
+        renderBio(profil);
+        renderPenelitian(penelitian);
+        renderPengabdian(pengabdian);
+        renderGaleri(galeri);
+        renderDokumen(dokumen);
+        renderKontak(profil);
+
+      } catch (err) {
+        // Kemungkinan: CORS gagal, jaringan, GAS tidak merespons
+        tampilToast('Tidak dapat terhubung ke server. Periksa koneksi Anda.', 'gagal');
+        tampilErrorHero('Tidak dapat terhubung ke server. Periksa koneksi internet atau pastikan URL API sudah benar.');
+        console.error('[Profil Publik] Error:', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+
 </body>
 </html>
