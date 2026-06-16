@@ -17,4 +17,4 @@
  *   - Jangan letakkan password atau kunci rahasia di file ini.
  */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbxEX9wOBxGCJ4EizS1KIPxzAz6mcKl-hvqVm_FpiFjL4yQ958zzqHmsDBeBy7gDntL5KQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxEX9wOBxGCJ4EizS1KIPxzAz6mcKl-hvqVm_FpiFjL4yQ958zzqHmsDBeBy7gDntL5KQ/exec' ;
