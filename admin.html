@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin &mdash; Profil Dosen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- =====================================================
+     HALAMAN LOGIN
+     ===================================================== -->
+<div id="halaman-login" class="login-wrap" style="display:none;">
+  <div class="login-kotak">
+    <div class="login-kotak__judul">
+      <h1>Panel Admin</h1>
+      <p>Masuk untuk mengelola konten profil dosen</p>
+    </div>
+
+    <div id="login-pesan" class="pesan-error" role="alert"></div>
+
+    <form id="form-login" novalidate>
+      <div class="form-group">
+        <label for="login-username">Username</label>
+        <input
+          type="text"
+          id="login-username"
+          name="username"
+          autocomplete="username"
+          placeholder="Masukkan username"
+          required
+        >
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input
+          type="password"
+          id="login-password"
+          name="password"
+          autocomplete="current-password"
+          placeholder="Masukkan password"
+          required
+        >
+      </div>
+      <button type="submit" class="tombol tombol--utama" style="width:100%;">Masuk</button>
+    </form>
+
+    <p style="text-align:center;margin-top:1.25rem;font-size:0.82rem;">
+      <a href="index.html">&larr; Kembali ke halaman publik</a>
+    </p>
+  </div>
+</div>
+
+<!-- =====================================================
+     HALAMAN DASHBOARD (setelah login)
+     ===================================================== -->
+<div id="halaman-dashboard" class="admin-wrap" style="display:none;">
+
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="container admin-header__inner">
+      <div class="admin-header__judul">&#x1F4CB; Panel Admin Profil Dosen</div>
+      <div class="admin-header__aksi">
+        <a href="index.html" target="_blank" style="color:rgba(255,255,255,0.8);font-size:0.85rem;">
+          &#x1F441; Lihat Halaman Publik
+        </a>
+        <button id="tombol-logout" class="tombol tombol--sekunder tombol--kecil">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigasi Tab -->
+  <nav class="admin-nav" aria-label="Navigasi panel admin">
+    <ul class="admin-nav__list" role="tablist">
+      <li class="admin-nav__item" data-tab="profil"      role="tab" tabindex="0">Profil</li>
+      <li class="admin-nav__item" data-tab="penelitian"  role="tab" tabindex="0">Penelitian</li>
+      <li class="admin-nav__item" data-tab="pengabdian"  role="tab" tabindex="0">Pengabdian</li>
+      <li class="admin-nav__item" data-tab="galeri"      role="tab" tabindex="0">Galeri</li>
+      <li class="admin-nav__item" data-tab="dokumen"     role="tab" tabindex="0">Dokumen</li>
+      <li class="admin-nav__item" data-tab="akun"        role="tab" tabindex="0">Akun</li>
+    </ul>
+  </nav>
+
+  <!-- Konten Tab -->
+  <main class="admin-konten">
+    <div class="container">
+
+      <!-- ========================
+           TAB: PROFIL
+           ======================== -->
+      <div id="tab-profil" class="admin-panel" role="tabpanel">
+        <h2 style="margin-bottom:1.5rem;">Data Profil</h2>
+
+        <form id="form-profil" novalidate>
+          <!-- Preview foto profil -->
+          <div class="form-group">
+            <label>Foto Profil Saat Ini</label>
+            <img id="profil-foto-preview" class="foto-preview" alt="Foto profil" src="">
+          </div>
+
+          <div class="form-group">
+            <label for="profil_foto_file">Ganti Foto Profil (opsional)</label>
+            <input type="file" id="profil_foto_file" name="foto_file" accept="image/*">
+            <p class="form-hint">Format: JPG, PNG, WebP. Maks. 25 MB. Perubahan foto hanya tersimpan jika klik "Simpan Profil".</p>
+          </div>
+
+          <div class="profil-grid">
+            <div class="form-group">
+              <label for="profil_gelar_depan">Gelar Depan</label>
+              <input type="text" id="profil_gelar_depan" name="gelar_depan" placeholder="Mis: Prof. Dr.">
+            </div>
+            <div class="form-group">
+              <label for="profil_gelar_belakang">Gelar Belakang</label>
+              <input type="text" id="profil_gelar_belakang" name="gelar_belakang" placeholder="Mis: M.Kes., Sp.PD">
+            </div>
+
+            <div class="form-group profil-grid--penuh">
+              <label for="profil_nama_lengkap">Nama Lengkap (tanpa gelar)</label>
+              <input type="text" id="profil_nama_lengkap" name="nama_lengkap" placeholder="Nama lengkap tanpa gelar">
+            </div>
+
+            <div class="form-group">
+              <label for="profil_nuptk">NUPTK</label>
+              <input type="text" id="profil_nuptk" name="nuptk" placeholder="Nomor NUPTK">
+            </div>
+            <div class="form-group">
+              <label for="profil_email_publik">Email Publik</label>
+              <input type="email" id="profil_email_publik" name="email_publik" placeholder="email@contoh.com">
+            </div>
+
+            <div class="form-group">
+              <label for="profil_profesi">Profesi</label>
+              <input type="text" id="profil_profesi" name="profesi" placeholder="Mis: Dosen Tetap">
+            </div>
+            <div class="form-group">
+              <label for="profil_jabatan">Jabatan Fungsional</label>
+              <input type="text" id="profil_jabatan" name="jabatan" placeholder="Mis: Lektor Kepala">
+            </div>
+
+            <div class="form-group profil-grid--penuh">
+              <label for="profil_institusi">Institusi / Fakultas</label>
+              <input type="text" id="profil_institusi" name="institusi" placeholder="Nama institusi atau fakultas">
+            </div>
+
+            <div class="form-group profil-grid--penuh">
+              <label for="profil_bio">Bio / Tentang Saya</label>
+              <textarea id="profil_bio" name="bio" rows="5" placeholder="Tuliskan bio singkat..."></textarea>
+            </div>
+          </div>
+
+          <h3 style="margin:1.5rem 0 1rem;">Media Sosial & Akademik</h3>
+          <p class="form-hint" style="margin-bottom:1rem;">Isi kolom yang tersedia. Kolom kosong tidak akan ditampilkan di halaman publik.</p>
+
+          <div class="profil-grid">
+            <div class="form-group">
+              <label for="profil_sosmed_facebook">Facebook</label>
+              <input type="url" id="profil_sosmed_facebook" name="sosmed_facebook" placeholder="https://facebook.com/...">
+            </div>
+            <div class="form-group">
+              <label for="profil_sosmed_instagram">Instagram</label>
+              <input type="url" id="profil_sosmed_instagram" name="sosmed_instagram" placeholder="https://instagram.com/...">
+            </div>
+            <div class="form-group">
+              <label for="profil_sosmed_tiktok">TikTok</label>
+              <input type="url" id="profil_sosmed_tiktok" name="sosmed_tiktok" placeholder="https://tiktok.com/@...">
+            </div>
+            <div class="form-group">
+              <label for="profil_sosmed_linkedin">LinkedIn</label>
+              <input type="url" id="profil_sosmed_linkedin" name="sosmed_linkedin" placeholder="https://linkedin.com/in/...">
+            </div>
+            <div class="form-group">
+              <label for="profil_sosmed_youtube">YouTube</label>
+              <input type="url" id="profil_sosmed_youtube" name="sosmed_youtube" placeholder="https://youtube.com/@...">
+            </div>
+            <div class="form-group">
+              <label for="profil_sosmed_scholar">Google Scholar</label>
+              <input type="url" id="profil_sosmed_scholar" name="sosmed_scholar" placeholder="https://scholar.google.com/...">
+            </div>
+            <div class="form-group profil-grid--penuh">
+              <label for="profil_sosmed_garuda">Garuda (Portal Garuda)</label>
+              <input type="url" id="profil_sosmed_garuda" name="sosmed_garuda" placeholder="https://garuda.kemdikbud.go.id/...">
+            </div>
+          </div>
+
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;">
+            <button type="submit" class="tombol tombol--utama">Simpan Profil</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ========================
+           TAB: PENELITIAN
+           ======================== -->
+      <div id="tab-penelitian" class="admin-panel" role="tabpanel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+          <h2>Daftar Penelitian</h2>
+          <button class="tombol tombol--utama" onclick="bukaModalTambahPenelitian()">
+            + Tambah Penelitian
+          </button>
+        </div>
+
+        <div class="tabel-wrapper">
+          <table class="tabel-admin">
+            <thead>
+              <tr>
+                <th>Judul</th>
+                <th>Tahun</th>
+                <th>Tautan</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-penelitian-body">
+              <tr><td colspan="4" class="status-loading"><div class="spinner"></div>Memuat...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========================
+           TAB: PENGABDIAN
+           ======================== -->
+      <div id="tab-pengabdian" class="admin-panel" role="tabpanel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+          <h2>Daftar Pengabdian Masyarakat</h2>
+          <button class="tombol tombol--utama" onclick="bukaModalTambahPengabdian()">
+            + Tambah Pengabdian
+          </button>
+        </div>
+
+        <div class="tabel-wrapper">
+          <table class="tabel-admin">
+            <thead>
+              <tr>
+                <th>Judul</th>
+                <th>Tahun</th>
+                <th>Tautan</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-pengabdian-body">
+              <tr><td colspan="4" class="status-loading"><div class="spinner"></div>Memuat...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========================
+           TAB: GALERI
+           ======================== -->
+      <div id="tab-galeri" class="admin-panel" role="tabpanel">
+        <h2 style="margin-bottom:1.5rem;">Galeri Foto</h2>
+
+        <!-- Form upload foto baru -->
+        <div class="kartu" style="margin-bottom:2rem;">
+          <h3 style="margin-bottom:1rem;">Tambah Foto Baru</h3>
+          <form id="form-galeri" novalidate>
+            <div class="form-group">
+              <label for="galeri_judul">Judul Foto</label>
+              <input type="text" id="galeri_judul" name="galeri_judul" placeholder="Judul foto" required>
+            </div>
+            <div class="form-group">
+              <label for="galeri_keterangan">Keterangan (opsional)</label>
+              <input type="text" id="galeri_keterangan" name="galeri_keterangan" placeholder="Keterangan singkat">
+            </div>
+            <div class="form-group">
+              <label for="galeri_file">File Foto</label>
+              <input type="file" id="galeri_file" name="galeri_file" accept="image/*" required>
+              <p class="form-hint">Format: JPG, PNG, WebP. Maks. 25 MB.</p>
+            </div>
+            <button type="submit" class="tombol tombol--utama">Unggah Foto</button>
+          </form>
+        </div>
+
+        <!-- Grid galeri yang sudah ada -->
+        <h3 style="margin-bottom:1rem;">Foto Tersimpan</h3>
+        <div id="galeri-admin-konten">
+          <div class="status-loading"><div class="spinner"></div>Memuat galeri...</div>
+        </div>
+      </div>
+
+      <!-- ========================
+           TAB: DOKUMEN
+           ======================== -->
+      <div id="tab-dokumen" class="admin-panel" role="tabpanel">
+        <h2 style="margin-bottom:1.5rem;">Dokumen</h2>
+
+        <!-- Form upload dokumen baru -->
+        <div class="kartu" style="margin-bottom:2rem;">
+          <h3 style="margin-bottom:1rem;">Tambah Dokumen Baru</h3>
+          <form id="form-dokumen" novalidate>
+            <div class="form-group">
+              <label for="dokumen_judul">Judul Dokumen</label>
+              <input type="text" id="dokumen_judul" name="dokumen_judul" placeholder="Judul dokumen" required>
+            </div>
+            <div class="form-group">
+              <label for="dokumen_jenis">Jenis Dokumen (opsional)</label>
+              <input type="text" id="dokumen_jenis" name="dokumen_jenis" placeholder="Mis: Sertifikat, SK, Modul">
+            </div>
+            <div class="form-group">
+              <label for="dokumen_file">File PDF</label>
+              <input type="file" id="dokumen_file" name="dokumen_file" accept="application/pdf" required>
+              <p class="form-hint">Format: PDF saja. Maks. 25 MB.</p>
+            </div>
+            <button type="submit" class="tombol tombol--utama">Unggah Dokumen</button>
+          </form>
+        </div>
+
+        <!-- Daftar dokumen tersimpan -->
+        <h3 style="margin-bottom:1rem;">Dokumen Tersimpan</h3>
+        <div id="dokumen-admin-konten">
+          <div class="status-loading"><div class="spinner"></div>Memuat dokumen...</div>
+        </div>
+      </div>
+
+      <!-- ========================
+           TAB: AKUN
+           ======================== -->
+      <div id="tab-akun" class="admin-panel" role="tabpanel">
+        <h2 style="margin-bottom:1.5rem;">Pengaturan Akun Admin</h2>
+
+        <div class="kartu" style="max-width:480px;">
+          <h3 style="margin-bottom:1rem;">Ganti Username &amp; Password</h3>
+          <p style="font-size:0.88rem;color:var(--warna-teks-muda);margin-bottom:1.25rem;">
+            Setelah menyimpan, Anda akan diminta login ulang dengan kredensial baru.
+          </p>
+
+          <form id="form-kredensial" novalidate>
+            <div class="form-group">
+              <label for="username_baru">Username Baru</label>
+              <input type="text" id="username_baru" name="username_baru" autocomplete="username" placeholder="Username baru" required>
+            </div>
+            <div class="form-group">
+              <label for="password_baru">Password Baru</label>
+              <input type="password" id="password_baru" name="password_baru" autocomplete="new-password" placeholder="Minimal 8 karakter" required>
+            </div>
+            <div class="form-group">
+              <label for="password_konfirmasi">Konfirmasi Password Baru</label>
+              <input type="password" id="password_konfirmasi" name="password_konfirmasi" autocomplete="new-password" placeholder="Ulangi password baru" required>
+            </div>
+            <button type="submit" class="tombol tombol--utama">Simpan Kredensial</button>
+          </form>
+        </div>
+      </div>
+
+    </div><!-- .container -->
+  </main>
+
+</div><!-- #halaman-dashboard -->
+
+<!-- =====================================================
+     MODAL: Tambah / Edit Penelitian
+     ===================================================== -->
+<div id="modal-penelitian" class="modal-latar tersembunyi" role="dialog" aria-modal="true"
+     aria-labelledby="modal-penelitian-judul">
+  <div class="modal-kotak">
+    <button class="modal-tutup" onclick="tutupModalPenelitian()" aria-label="Tutup">&times;</button>
+    <h2 id="modal-penelitian-judul" class="modal-kotak__judul">Tambah Penelitian</h2>
+
+    <form id="form-penelitian" novalidate>
+      <input type="hidden" id="penelitian_id" name="penelitian_id">
+      <div class="form-group">
+        <label for="penelitian_judul">Judul Penelitian</label>
+        <input type="text" id="penelitian_judul" name="penelitian_judul" placeholder="Judul penelitian" required>
+      </div>
+      <div class="form-group">
+        <label for="penelitian_tahun">Tahun (opsional)</label>
+        <input type="number" id="penelitian_tahun" name="penelitian_tahun"
+               placeholder="Mis: 2024" min="1900" max="2100">
+      </div>
+      <div class="form-group">
+        <label for="penelitian_link">Tautan Dokumen (opsional)</label>
+        <input type="url" id="penelitian_link" name="penelitian_link" placeholder="https://...">
+      </div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <button type="submit" class="tombol tombol--utama">Simpan</button>
+        <button type="button" class="tombol tombol--sekunder" onclick="tutupModalPenelitian()">Batal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- =====================================================
+     MODAL: Tambah / Edit Pengabdian
+     ===================================================== -->
+<div id="modal-pengabdian" class="modal-latar tersembunyi" role="dialog" aria-modal="true"
+     aria-labelledby="modal-pengabdian-judul">
+  <div class="modal-kotak">
+    <button class="modal-tutup" onclick="tutupModalPengabdian()" aria-label="Tutup">&times;</button>
+    <h2 id="modal-pengabdian-judul" class="modal-kotak__judul">Tambah Pengabdian</h2>
+
+    <form id="form-pengabdian" novalidate>
+      <input type="hidden" id="pengabdian_id" name="pengabdian_id">
+      <div class="form-group">
+        <label for="pengabdian_judul">Judul Kegiatan Pengabdian</label>
+        <input type="text" id="pengabdian_judul" name="pengabdian_judul" placeholder="Judul kegiatan" required>
+      </div>
+      <div class="form-group">
+        <label for="pengabdian_tahun">Tahun (opsional)</label>
+        <input type="number" id="pengabdian_tahun" name="pengabdian_tahun"
+               placeholder="Mis: 2024" min="1900" max="2100">
+      </div>
+      <div class="form-group">
+        <label for="pengabdian_link">Tautan Dokumen (opsional)</label>
+        <input type="url" id="pengabdian_link" name="pengabdian_link" placeholder="https://...">
+      </div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <button type="submit" class="tombol tombol--utama">Simpan</button>
+        <button type="button" class="tombol tombol--sekunder" onclick="tutupModalPengabdian()">Batal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- =====================================================
+     MODAL: Edit Foto Galeri (judul & keterangan saja)
+     ===================================================== -->
+<div id="modal-galeri-edit" class="modal-latar tersembunyi" role="dialog" aria-modal="true"
+     aria-labelledby="modal-galeri-edit-judul-header">
+  <div class="modal-kotak">
+    <button class="modal-tutup" onclick="tutupModalEditGaleri()" aria-label="Tutup">&times;</button>
+    <h2 id="modal-galeri-edit-judul-header" class="modal-kotak__judul">Edit Foto Galeri</h2>
+    <p style="font-size:0.85rem;color:var(--warna-teks-muda);margin-bottom:1rem;">
+      Hanya judul dan keterangan yang dapat diubah. File gambar tidak diubah.
+    </p>
+    <form id="form-galeri-edit" novalidate>
+      <input type="hidden" id="galeri_edit_id" name="galeri_edit_id">
+      <div class="form-group">
+        <label for="galeri_edit_judul">Judul Foto</label>
+        <input type="text" id="galeri_edit_judul" name="galeri_edit_judul" placeholder="Judul foto" required>
+      </div>
+      <div class="form-group">
+        <label for="galeri_edit_keterangan">Keterangan (opsional)</label>
+        <input type="text" id="galeri_edit_keterangan" name="galeri_edit_keterangan" placeholder="Keterangan singkat">
+      </div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <button type="submit" class="tombol tombol--utama">Simpan</button>
+        <button type="button" class="tombol tombol--sekunder" onclick="tutupModalEditGaleri()">Batal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Container toast -->
+<div id="toast-container"></div>
+
+<!-- Script -->
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
